@@ -1,257 +1,147 @@
-/**
- *------
- * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * cannonadesmg implementation : © <Your name here> <Your email address here>
- *
- * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
- * See http://en.boardgamearena.com/#!doc/Studio for more information.
- * -----
- *
- * cannonadesmg.js
- *
- * cannonadesmg user interface script
- * 
- * In this file, you are describing the logic of your user interface, in Javascript language.
- *
- */
-
+var PlayerTable = (function () {
+    function PlayerTable(game, player) {
+        this.game = game;
+        this.player_id = Number(player.id);
+        var html = "<div id=\"player-table-".concat(player.id, "\" class=\"player-table whiteblock\" style=\"--player-color: #").concat(player.color, "\">\n            <h3>").concat(player.name, "</h3>\n        </div>");
+        document.getElementById("tables").insertAdjacentHTML("beforeend", html);
+    }
+    return PlayerTable;
+}());
+var TableCenter = (function () {
+    function TableCenter(game) {
+        this.game = game;
+    }
+    return TableCenter;
+}());
+var StateManager = (function () {
+    function StateManager(game) {
+        this.game = game;
+        this.states = {
+            playerTurn: new PlayerTurnState(game),
+        };
+    }
+    StateManager.prototype.onEnteringState = function (stateName, args) {
+        console.log("Entering state: ".concat(stateName));
+        if (this.states[stateName] !== undefined) {
+            this.states[stateName].onEnteringState(args.args);
+        }
+    };
+    StateManager.prototype.onLeavingState = function (stateName) {
+        console.log("Leaving state: ".concat(stateName));
+        if (this.states[stateName] !== undefined) {
+            this.states[stateName].onLeavingState();
+        }
+    };
+    StateManager.prototype.onUpdateActionButtons = function (stateName, args) {
+        console.log("Update action buttons: ".concat(stateName));
+        if (this.game.isCurrentPlayerActive()) {
+            this.states[stateName].onUpdateActionButtons(args);
+        }
+    };
+    return StateManager;
+}());
+var PlayerTurnState = (function () {
+    function PlayerTurnState(game) {
+        this.game = game;
+    }
+    PlayerTurnState.prototype.onEnteringState = function (args) { };
+    PlayerTurnState.prototype.onLeavingState = function () { };
+    PlayerTurnState.prototype.onUpdateActionButtons = function (_a) {
+        var _this = this;
+        var can_add_ship = _a.can_add_ship;
+        var handleAdd = function () {
+            _this.game.setClientState("playerTurnAdd", {
+                description: _(""),
+                args: {},
+            });
+        };
+        var handleShoot = function () {
+            _this.game.setClientState("playerTurnShoot", {
+                description: _(""),
+                args: {},
+            });
+        };
+        var handleDraw = function () {
+            _this.game.setClientState("playerTurnDraw", {
+                description: _(""),
+                args: {},
+            });
+        };
+        var handleBoard = function () {
+            _this.game.setClientState("playerTurnBoard", {
+                description: _(""),
+                args: {},
+            });
+        };
+        this.game.addPrimaryActionButton("btn_add", _("Add a new ship"), handleAdd);
+        this.game.addPrimaryActionButton("btn_shoot", _("Shoot an opponent's ship"), handleShoot);
+        this.game.addPrimaryActionButton("btn_draw", _("Discard a ship to draw"), handleDraw);
+        this.game.addPrimaryActionButton("btn_board", _("Board a ship"), handleBoard);
+        this.game.toggleButton("btn_add", can_add_ship);
+    };
+    return PlayerTurnState;
+}());
+var Cannonades = (function () {
+    function Cannonades() {
+    }
+    Cannonades.prototype.setup = function (gamedatas) {
+        this.stateManager = new StateManager(this);
+        this.createPlayerTables(gamedatas);
+        this.setupNotifications();
+    };
+    Cannonades.prototype.onEnteringState = function (stateName, args) {
+        this.stateManager.onEnteringState(stateName, args);
+    };
+    Cannonades.prototype.onLeavingState = function (stateName) {
+        this.stateManager.onLeavingState(stateName);
+    };
+    Cannonades.prototype.onUpdateActionButtons = function (stateName, args) {
+        this.stateManager.onUpdateActionButtons(stateName, args);
+    };
+    Cannonades.prototype.setupNotifications = function () { };
+    Cannonades.prototype.createPlayerTables = function (gamedatas) {
+        var _this = this;
+        this.playersTables = [];
+        gamedatas.playerorder.forEach(function (player_id) {
+            var player = gamedatas.players[Number(player_id)];
+            var table = new PlayerTable(_this, player);
+            _this.playersTables.push(table);
+        });
+    };
+    Cannonades.prototype.addPrimaryActionButton = function (id, text, callback) {
+        if (!document.getElementById(id)) {
+            this.addActionButton(id, text, callback, null, false, "blue");
+        }
+    };
+    Cannonades.prototype.addSecondaryActionButton = function (id, text, callback) {
+        if (!document.getElementById(id)) {
+            this.addActionButton(id, text, callback, null, false, "gray");
+        }
+    };
+    Cannonades.prototype.addDangerActionButton = function (id, text, callback) {
+        if (!document.getElementById(id)) {
+            this.addActionButton(id, text, callback, null, false, "red");
+        }
+    };
+    Cannonades.prototype.toggleButton = function (id, enabled) {
+        var _a;
+        (_a = document.getElementById(id)) === null || _a === void 0 ? void 0 : _a.classList.toggle('disabled', !enabled);
+    };
+    Cannonades.prototype.takeAction = function (action, data, onSuccess, onComplete) {
+        data = data || {};
+        data.lock = true;
+        onSuccess = onSuccess !== null && onSuccess !== void 0 ? onSuccess : function (result) { };
+        onComplete = onComplete !== null && onComplete !== void 0 ? onComplete : function (is_error) { };
+        this.ajaxcall("/cannonadesmg/cannonadesmg/".concat(action, ".html"), data, this, onSuccess, onComplete);
+    };
+    return Cannonades;
+}());
 define([
-    "dojo","dojo/_base/declare",
+    "dojo",
+    "dojo/_base/declare",
     "ebg/core/gamegui",
-    "ebg/counter"
-],
-function (dojo, declare) {
-    return declare("bgagame.cannonadesmg", ebg.core.gamegui, {
-        constructor: function(){
-            console.log('cannonadesmg constructor');
-              
-            // Here, you can init the global variables of your user interface
-            // Example:
-            // this.myGlobalValue = 0;
-
-        },
-        
-        /*
-            setup:
-            
-            This method must set up the game user interface according to current game situation specified
-            in parameters.
-            
-            The method is called each time the game interface is displayed to a player, ie:
-            _ when the game starts
-            _ when a player refreshes the game page (F5)
-            
-            "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
-        */
-        
-        setup: function( gamedatas )
-        {
-            console.log( "Starting game setup" );
-            
-            // Setting up player boards
-            for( var player_id in gamedatas.players )
-            {
-                var player = gamedatas.players[player_id];
-                         
-                // TODO: Setting up players boards if needed
-            }
-            
-            // TODO: Set up your game interface here, according to "gamedatas"
-            
- 
-            // Setup game notifications to handle (see "setupNotifications" method below)
-            this.setupNotifications();
-
-            console.log( "Ending game setup" );
-        },
-       
-
-        ///////////////////////////////////////////////////
-        //// Game & client states
-        
-        // onEnteringState: this method is called each time we are entering into a new game state.
-        //                  You can use this method to perform some user interface changes at this moment.
-        //
-        onEnteringState: function( stateName, args )
-        {
-            console.log( 'Entering state: '+stateName );
-            
-            switch( stateName )
-            {
-            
-            /* Example:
-            
-            case 'myGameState':
-            
-                // Show some HTML block at this game state
-                dojo.style( 'my_html_block_id', 'display', 'block' );
-                
-                break;
-           */
-           
-           
-            case 'dummmy':
-                break;
-            }
-        },
-
-        // onLeavingState: this method is called each time we are leaving a game state.
-        //                 You can use this method to perform some user interface changes at this moment.
-        //
-        onLeavingState: function( stateName )
-        {
-            console.log( 'Leaving state: '+stateName );
-            
-            switch( stateName )
-            {
-            
-            /* Example:
-            
-            case 'myGameState':
-            
-                // Hide the HTML block we are displaying only during this game state
-                dojo.style( 'my_html_block_id', 'display', 'none' );
-                
-                break;
-           */
-           
-           
-            case 'dummmy':
-                break;
-            }               
-        }, 
-
-        // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
-        //                        action status bar (ie: the HTML links in the status bar).
-        //        
-        onUpdateActionButtons: function( stateName, args )
-        {
-            console.log( 'onUpdateActionButtons: '+stateName );
-                      
-            if( this.isCurrentPlayerActive() )
-            {            
-                switch( stateName )
-                {
-/*               
-                 Example:
- 
-                 case 'myGameState':
-                    
-                    // Add 3 action buttons in the action status bar:
-                    
-                    this.addActionButton( 'button_1_id', _('Button 1 label'), 'onMyMethodToCall1' ); 
-                    this.addActionButton( 'button_2_id', _('Button 2 label'), 'onMyMethodToCall2' ); 
-                    this.addActionButton( 'button_3_id', _('Button 3 label'), 'onMyMethodToCall3' ); 
-                    break;
-*/
-                }
-            }
-        },        
-
-        ///////////////////////////////////////////////////
-        //// Utility methods
-        
-        /*
-        
-            Here, you can defines some utility methods that you can use everywhere in your javascript
-            script.
-        
-        */
-
-
-        ///////////////////////////////////////////////////
-        //// Player's action
-        
-        /*
-        
-            Here, you are defining methods to handle player's action (ex: results of mouse click on 
-            game objects).
-            
-            Most of the time, these methods:
-            _ check the action is possible at this game state.
-            _ make a call to the game server
-        
-        */
-        
-        /* Example:
-        
-        onMyMethodToCall1: function( evt )
-        {
-            console.log( 'onMyMethodToCall1' );
-            
-            // Preventing default browser reaction
-            dojo.stopEvent( evt );
-
-            // Check that this action is possible (see "possibleactions" in states.inc.php)
-            if( ! this.checkAction( 'myAction' ) )
-            {   return; }
-
-            this.ajaxcall( "/cannonadesmg/cannonadesmg/myAction.html", { 
-                                                                    lock: true, 
-                                                                    myArgument1: arg1, 
-                                                                    myArgument2: arg2,
-                                                                    ...
-                                                                 }, 
-                         this, function( result ) {
-                            
-                            // What to do after the server call if it succeeded
-                            // (most of the time: nothing)
-                            
-                         }, function( is_error) {
-
-                            // What to do after the server call in anyway (success or failure)
-                            // (most of the time: nothing)
-
-                         } );        
-        },        
-        
-        */
-
-        
-        ///////////////////////////////////////////////////
-        //// Reaction to cometD notifications
-
-        /*
-            setupNotifications:
-            
-            In this method, you associate each of your game notifications with your local method to handle it.
-            
-            Note: game notification names correspond to "notifyAllPlayers" and "notifyPlayer" calls in
-                  your cannonadesmg.game.php file.
-        
-        */
-        setupNotifications: function()
-        {
-            console.log( 'notifications subscriptions setup' );
-            
-            // TODO: here, associate your game notifications with local methods
-            
-            // Example 1: standard notification handling
-            // dojo.subscribe( 'cardPlayed', this, "notif_cardPlayed" );
-            
-            // Example 2: standard notification handling + tell the user interface to wait
-            //            during 3 seconds after calling the method in order to let the players
-            //            see what is happening in the game.
-            // dojo.subscribe( 'cardPlayed', this, "notif_cardPlayed" );
-            // this.notifqueue.setSynchronous( 'cardPlayed', 3000 );
-            // 
-        },  
-        
-        // TODO: from this point and below, you can write your game notifications handling methods
-        
-        /*
-        Example:
-        
-        notif_cardPlayed: function( notif )
-        {
-            console.log( 'notif_cardPlayed' );
-            console.log( notif );
-            
-            // Note: notif.args contains the arguments specified during you "notifyAllPlayers" / "notifyPlayer" PHP call
-            
-            // TODO: play the card in the user interface.
-        },    
-        
-        */
-   });             
+    "ebg/counter",
+    "ebg/stock",
+], function (dojo, declare) {
+    return declare("bgagame.cannonadesmg", [ebg.core.gamegui], new Cannonades());
 });

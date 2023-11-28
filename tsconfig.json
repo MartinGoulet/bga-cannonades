@@ -1,0 +1,25 @@
+{
+    "rootDir": "src", 
+    "compilerOptions": {
+      "target": "es5",
+      "module": "none",
+      "lib": ["dom", "esnext"],  
+      "sourceMap": false,
+      "outFile": "cannonadesmg.js",
+      "removeComments": true,
+      "strict": false,
+    },
+    "files": [
+        "src/bga-framework.d.ts",
+        
+        "src/player-table.ts",
+        "src/table-center.ts",
+
+        "src/states/state-manager.ts",
+        "src/states/player-turn.ts",
+
+        "src/cannonades.d.ts",
+        "src/cannonades.ts",
+        "src/define.ts"
+    ]
+}

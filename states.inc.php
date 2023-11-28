@@ -1,4 +1,5 @@
 <?php
+
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
@@ -49,63 +50,77 @@
 
 //    !! It is not a good idea to modify this file when a game is running !!
 
- 
-$machinestates = array(
+$basicGameStates = [
 
     // The initial state. Please do not modify.
-    1 => array(
+    ST_BGA_GAME_SETUP => [
         "name" => "gameSetup",
-        "description" => "",
+        "description" => clienttranslate("Game setup"),
         "type" => "manager",
         "action" => "stGameSetup",
-        "transitions" => array( "" => 2 )
-    ),
-    
-    // Note: ID=2 => your first state
+        "transitions" => ["" => ST_TURN_DRAW]
+    ],
 
-    2 => array(
-    		"name" => "playerTurn",
-    		"description" => clienttranslate('${actplayer} must play a card or pass'),
-    		"descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
-    		"type" => "activeplayer",
-    		"possibleactions" => array( "playCard", "pass" ),
-    		"transitions" => array( "playCard" => 2, "pass" => 2 )
-    ),
-    
-/*
-    Examples:
-    
-    2 => array(
-        "name" => "nextPlayer",
-        "description" => '',
-        "type" => "game",
-        "action" => "stNextPlayer",
-        "updateGameProgression" => true,   
-        "transitions" => array( "endGame" => 99, "nextPlayer" => 10 )
-    ),
-    
-    10 => array(
-        "name" => "playerTurn",
-        "description" => clienttranslate('${actplayer} must play a card or pass'),
-        "descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
-        "type" => "activeplayer",
-        "possibleactions" => array( "playCard", "pass" ),
-        "transitions" => array( "playCard" => 2, "pass" => 2 )
-    ), 
-
-*/    
-   
     // Final state.
-    // Please do not modify (and do not overload action/args methods).
-    99 => array(
+    // Please do not modify.
+    ST_BGA_GAME_END => [
         "name" => "gameEnd",
         "description" => clienttranslate("End of game"),
         "type" => "manager",
         "action" => "stGameEnd",
-        "args" => "argGameEnd"
-    )
+        "args" => "argGameEnd",
+    ],
+];
 
-);
+$gameEngineState = [
+    ST_TURN_DRAW => [
+        "name" => "draw",
+        "type" => "game",
+        "action" => "stDraw",
+        "transitions" => [
+            "" => ST_PLAYER_TURN,
+        ],
+    ],
 
+    ST_PLAYER_TURN => [
+        "name" => "playerTurn",
+        "description" => clienttranslate('${actplayer} must play a card or pass'),
+        "descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
+        "args" => "argPlayerTurn",
+        "type" => "activeplayer",
+        "possibleactions" => [
+            "addShip",
+            "shootShip",
+            "discardShip",
+            "boardShip",
+            "pass"
+        ],
+        "transitions" => [
+            "next" => ST_PLAYER_TURN,
+            "end" => ST_PLAYER_TURN_END,
+            "next_player" => ST_PLAYER_TURN_NEXT,
+        ],
+    ],
 
+    ST_PLAYER_TURN_END => [
+        "name" => "playerTurn",
+        "description" => clienttranslate('${actplayer} must discard to hand size'),
+        "descriptionmyturn" => clienttranslate('${you} must discard to hand size'),
+        "type" => "activeplayer",
+        "possibleactions" => ["discard"],
+        "transitions" => [
+            "" => ST_PLAYER_TURN_NEXT,
+        ],
+    ],
 
+    ST_PLAYER_TURN_NEXT => [
+        "name" => "playerNext",
+        "type" => "game",
+        "action" => "stPlayerNext",
+        "transitions" => [
+            "" => ST_PLAYER_TURN,
+        ],
+    ],
+];
+
+$machinestates = $basicGameStates + $gameEngineState;
