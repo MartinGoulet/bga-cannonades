@@ -1,5 +1,46 @@
+#tables {
+   display: flex;
+   gap: 20px;
+   flex-wrap: wrap;
+   justify-content: space-evenly;
+}
+
 .player-table {
-    h3 {
-        color: var(--player-color);
-    }
+   --card-width: 100px;
+   --card-height: 137px;
+   width: 700px;
+   border: 3px solid var(--player-color);
+   border-radius: 8px;
+   padding-top: 30px;
+   position: relative;
+
+   .c-title {
+      color: var(--player-color);
+      border: 3px solid var(--player-color);
+      border-radius: 8px;
+   }
+
+   .line-stock {
+      min-height: var(--card-height);
+      padding: 20px 0;
+   }
+
+   .hand-stock {
+      padding: 20px 0;
+   }
+
+   &.eliminated-player {
+      background-color: #202020aa;
+      background-image: none;
+   }
+}
+
+.player-board {
+   &.eliminated-player {
+      background-color: #b9b9b9;
+
+      .player-name a {
+         text-decoration: line-through;
+      }
+   }
 }

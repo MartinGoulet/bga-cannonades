@@ -2,9 +2,36 @@ interface Cannonades extends ebg.core.gamegui {}
 
 interface CannonadesPlayerData extends BgaPlayer {}
 
+interface CannonadesPlayerInfo {
+    board: CannonadesCard[];
+    hand: CannonadesCard[];    
+}
+
 interface CannonadesGamedatas extends BgaGamedatas {
-    // player_id: player
+    ship_types: Record<number, ShipType>;
+    cannonade_types: Record<number, CannonadeType>;
+
     players: Record<string, CannonadesPlayerData>;
+    players_info: Record<number, CannonadesPlayerInfo>;
+
+    deck_count: number;
+    discard: CannonadesCard[];
+}
+
+type ShipType = {
+    img: number;
+}
+
+type CannonadeType = {
+    img: number;
+}
+
+interface CannonadesCard {
+    id: string;
+    type: string;
+    type_arg: string;
+    location: string;
+    location_arg: string;
 }
 
 interface StateHandler {

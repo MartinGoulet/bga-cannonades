@@ -2,7 +2,9 @@
 
 namespace Cannonades\Traits;
 
+use Cannonades\Core\Card;
 use Cannonades\Core\Game;
+use Cannonades\Core\Globals;
 
 trait Args {
 
@@ -19,7 +21,9 @@ trait Args {
     function argPlayerTurn() {
         $player_id = intval(Game::get()->getActivePlayerId());
         return [
-            'can_add_ship' => false,
+            'can_add_ship' => Card::countShipOnBoard($player_id) < 4,
+            'can_shoot_cannonades' => Game::get()->getStat(STAT_TURN_NUMBER, $player_id) > 1,
+            'actions_remaining' => Globals::getActionsRemaining(),
         ];
     }
 }

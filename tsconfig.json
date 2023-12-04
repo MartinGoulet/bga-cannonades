@@ -11,12 +11,31 @@
     },
     "files": [
         "src/bga-framework.d.ts",
+
+        "node_modules/bga-animations/src/animations.ts",
+        "node_modules/bga-animations/src/animations/attach-with-animation.ts",
+        "node_modules/bga-animations/src/animations/cumulated-animations.ts",
+        "node_modules/bga-animations/src/animations/slide-to-animation.ts",
+        "node_modules/bga-animations/src/animations/slide-animation.ts",
+        "node_modules/bga-animations/src/animations-utils.ts",
+        "node_modules/bga-animations/src/animation-manager.ts",
+        "node_modules/bga-cards/src/animations.ts",
+        "node_modules/bga-cards/src/stocks/card-stock.ts",
+        "node_modules/bga-cards/src/stocks/deck.ts",
+        "node_modules/bga-cards/src/stocks/line-stock.ts",
+        "node_modules/bga-cards/src/stocks/hand-stock.ts",
+        "node_modules/bga-cards/src/sort.ts",
+        "node_modules/bga-cards/src/card-manager.ts",
+
+        "src/cards/card-manager.ts",
         
+        "src/notification.ts",
         "src/player-table.ts",
         "src/table-center.ts",
 
         "src/states/state-manager.ts",
         "src/states/player-turn.ts",
+        "src/states/player-turn-shoot.ts",
 
         "src/cannonades.d.ts",
         "src/cannonades.ts",

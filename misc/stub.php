@@ -348,12 +348,17 @@ class Table {
     //////////// Undo moves
     ////////////
 
-    function undoSavepoint() 
-    {
+    function undoSavepoint() {
     }
 
-    function undoRestorePoint()
-    {
+    function undoRestorePoint() {
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    //////////// Player elimination
+    ////////////
+
+    function eliminatePlayer($player_id) {
     }
 }
 

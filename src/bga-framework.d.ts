@@ -240,3 +240,77 @@ declare interface BgaGamedatas {
     playerorder: (string | number)[];
     tablespeed: string;
 }
+
+interface Dojo {
+    /**
+     * Modify the CSS property of any HTML element in your interface.
+     * @example
+     * dojo.style( 'my_element', 'display', 'none' );
+     */
+    style: (nodeId: string, property: string, value: string) => void;
+
+    addClass: (nodeId: string, className: string) => void;
+    removeClass: (nodeId: string, className?: string) => void;
+    toggleClass: (nodeId: string, className: string, forceValue: boolean) => void;
+    hasClass: (nodeId: string, className: string) => boolean;
+    animateProperty: (info: any) => any;
+
+    attr: (nodeId: string, property: string, value?: any) => any;
+
+    place: (html: string, nodeId: string, action?: DojoPlaceAction) => void;
+    /**
+     * Remove all children of the node element
+     * @example
+     * dojo.empty('my_hand');
+     */
+    empty: (nodeId: string) => void;
+    /**
+     * Remove the element
+     * @example
+     * // this remove all subnode of class green from mynode
+     * dojo.query(".green", mynode).forEach(dojo.destroy); 
+     */
+    destroy: (element: any) => void;
+    /**
+     * Create element
+     * @example
+     * // this creates div with class yellow_array and places it in "parent"
+     * dojo.create("div", { class: "yellow_arrow" }, parent);
+     */
+    create: (element_type: string, classes?: any, parent?: any) => void;
+
+    /**
+     * Same as dojo.style(), but for all the nodes set with the specified cssClassName
+     */
+    addStyleToClass: (cssClassName: string, cssProperty: string, propertyValue: any) => void
+
+
+    /**
+     * Used to associate a player event with one of your notification methods.
+     * @example
+     * dojo.connect( $('my_element'), 'onclick', this, 'onClickOnMyElement' );
+     */
+    connect: (element: any, event: string, callback_obj: any, callback_method?: string | Function) => number;
+
+
+    query: Function;
+    hitch: Function;
+    subscribe: Function;
+    string: any;
+    fx: any;
+    marginBox: Function;
+    fadeIn: Function;
+    trim: Function;
+    stopEvent: Function;
+    position: Function;
+}
+
+interface DojoFxAnimation {
+    play: () => void;
+}
+
+/**
+ * Translate text
+ */
+declare const dojo: Dojo;
+declare const _: (text: string) => string;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
@@ -20,29 +21,61 @@
  * this.ajaxcall( "/cannonadesmg/cannonadesmg/myAction.html", ...)
  *
  */
-  
-  
-  class action_cannonadesmg extends APP_GameAction
-  { 
-    // Constructor: please do not modify
-   	public function __default()
-  	{
-  	    if( self::isArg( 'notifwindow') )
-  	    {
-            $this->view = "common_notifwindow";
-  	        $this->viewArgs['table'] = self::getArg( "table", AT_posint, true );
-  	    }
-  	    else
-  	    {
-            $this->view = "cannonadesmg_cannonadesmg";
-            self::trace( "Complete reinitialization of board game" );
-      }
-  	} 
-  	
-  	// TODO: defines your action entry points there
 
 
-    /*
+class action_cannonadesmg extends APP_GameAction {
+  // Constructor: please do not modify
+  public function __default() {
+    if (self::isArg('notifwindow')) {
+      $this->view = "common_notifwindow";
+      $this->viewArgs['table'] = self::getArg("table", AT_posint, true);
+    } else {
+      $this->view = "cannonadesmg_cannonadesmg";
+      self::trace("Complete reinitialization of board game");
+    }
+  }
+
+  // TODO: defines your action entry points there
+
+  public function addShip() {
+    self::setAjaxMode();
+    // Retrieve arguments
+    $card_id = self::getArg("card_id", AT_posint, true);
+    // Then, call the appropriate method in your game logic, like "playCard" or "myAction"
+    $this->game->checkAction('addShip');
+    $this->game->addShip($card_id);
+    self::ajaxResponse();
+  }
+
+  public function discardCard() {
+    self::setAjaxMode();
+    // Retrieve arguments
+    $card_id = self::getArg("card_id", AT_posint, true);
+    // Then, call the appropriate method in your game logic, like "playCard" or "myAction"
+    $this->game->checkAction('discardCard');
+    $this->game->discardCard($card_id);
+    self::ajaxResponse();
+  }
+
+  public function shootCannonade() {
+    self::setAjaxMode();
+    // Retrieve arguments
+    $card_id = self::getArg("card_id", AT_posint, true);
+    $ship_id = self::getArg("ship_id", AT_posint, true);
+    // Then, call the appropriate method in your game logic, like "playCard" or "myAction"
+    $this->game->checkAction('shootCannonade');
+    $this->game->shootCannonade($card_id, $ship_id);
+    self::ajaxResponse();
+  }
+
+  public function pass() {
+    self::setAjaxMode();
+    $this->game->checkAction('pass');
+    $this->game->pass();
+    self::ajaxResponse();
+  }
+
+  /*
     
     Example:
   	
@@ -62,7 +95,4 @@
     }
     
     */
-
-  }
-  
-
+}

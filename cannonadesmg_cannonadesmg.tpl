@@ -2,10 +2,15 @@
 
 <div id="table">
     <div id="tables-and-center">
-        <div id="table-center-wrapper">
-            <div id="table-center"></div>
+        <div id="tables">
+            <div id="table-center">
+                <div id="decks">
+                    <div id="deck"></div>
+                    <div id="discard"></div>
+                </div>
+                <div id="played-card"></div>
+            </div>
         </div>
-        <div id="tables"></div>
     </div>
 </div>
 

@@ -17,6 +17,8 @@
  *
  */
 
+use Cannonades\Core\Card;
+
 $swdNamespaceAutoload = function ($class) {
     $classParts = explode('\\', $class);
     if ($classParts[0] == 'Cannonades') {
@@ -37,7 +39,17 @@ require_once('modules/php/constants.inc.php');
 class cannonadesmg extends Table {
     use Cannonades\Traits\Actions;
     use Cannonades\Traits\Args;
+    use Cannonades\Traits\Debug;
     use Cannonades\Traits\States;
+
+    /** @var array */
+    public $ship_types;
+
+    /** @var array */
+    public $cannonade_types;
+
+    /** @var Deck */
+    public $deck;
 
     /** @var cannonadesmg */
     public static $instance = null;
@@ -59,6 +71,9 @@ class cannonadesmg extends Table {
             //    "my_second_game_variant" => 101,
             //      ...
         ));
+        
+        $this->deck = self::getNew("module.common.deck");
+        $this->deck->init("card");
         
         self::$instance = $this;
     }
@@ -110,7 +125,8 @@ class cannonadesmg extends Table {
         //self::initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
 
         // TODO: setup the initial game situation here
-
+        Card::setupDeck();
+        Card::setupPlayersHand();
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -128,7 +144,7 @@ class cannonadesmg extends Table {
         _ when a player refreshes the game page (F5)
     */
     protected function getAllDatas() {
-        $result = array();
+        $result = [];
 
         $current_player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
 
@@ -137,7 +153,23 @@ class cannonadesmg extends Table {
         $sql = "SELECT player_id id, player_score score FROM player ";
         $result['players'] = self::getCollectionFromDb($sql);
 
+        $result['ship_types'] = $this->ship_types;
+        $result['cannonade_types'] = $this->cannonade_types;
+
+        $result['deck_count'] = intval($this->deck->countCardInLocation('deck'));
+        $result['discard'] = array_values($this->deck->getCardsInLocation('discard'));
+
         // TODO: Gather all information about current game situation (visible by player $current_player_id).
+        $players_info = [];
+        foreach(self::loadPlayersBasicInfos() as $player_id => $player) {
+            $players_info[intval($player_id)] = [
+                'board' => Card::getBoard($player_id, $player_id == $current_player_id),
+                'hand' => Card::getHand($player_id, $player_id == $current_player_id),
+            ];
+        }
+        $result['players_info'] = $players_info;
+
+        $result['debug'] = self::getCollectionFromDB('SELECT * FROM card');
 
         return $result;
     }

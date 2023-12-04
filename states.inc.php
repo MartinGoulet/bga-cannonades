@@ -84,20 +84,20 @@ $gameEngineState = [
 
     ST_PLAYER_TURN => [
         "name" => "playerTurn",
-        "description" => clienttranslate('${actplayer} must play a card or pass'),
-        "descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
+        "description" => clienttranslate('${actplayer} must take an action or pass (${actions_remaining} action(s) remaining)'),
+        "descriptionmyturn" => clienttranslate('${you} must take an action or pass (${actions_remaining} action(s) remaining)'),
         "args" => "argPlayerTurn",
         "type" => "activeplayer",
         "possibleactions" => [
             "addShip",
-            "shootShip",
-            "discardShip",
+            "shootCannonade",
+            "discardCard",
             "boardShip",
             "pass"
         ],
         "transitions" => [
             "next" => ST_PLAYER_TURN,
-            "end" => ST_PLAYER_TURN_END,
+            "discard" => ST_PLAYER_TURN_END,
             "next_player" => ST_PLAYER_TURN_NEXT,
         ],
     ],
@@ -118,7 +118,7 @@ $gameEngineState = [
         "type" => "game",
         "action" => "stPlayerNext",
         "transitions" => [
-            "" => ST_PLAYER_TURN,
+            "" => ST_TURN_DRAW,
         ],
     ],
 ];

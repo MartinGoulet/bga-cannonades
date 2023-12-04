@@ -1,4 +1,5 @@
 <?php
+
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
@@ -20,18 +21,33 @@
  */
 
 
-/*
+$this->ship_types = [
+   1 => ['color' => BLUE, 'captain' => 0, 'count' => 3, 'img' => 20],
+   2 => ['color' => BLUE, 'captain' => 1, 'count' => 2, 'img' => 19],
+   3 => ['color' => BLUE, 'captain' => 2, 'count' => 1, 'img' => 16],
 
-Example:
+   11 => ['color' => GREEN, 'captain' => 0, 'count' => 3, 'img' => 18],
+   12 => ['color' => GREEN, 'captain' => 1, 'count' => 2, 'img' => 15],
+   13 => ['color' => GREEN, 'captain' => 2, 'count' => 1, 'img' => 21],
 
-$this->card_types = array(
-    1 => array( "card_name" => ...,
-                ...
-              )
-);
+   21 => ['color' => ORANGE, 'captain' => 0, 'count' => 2, 'img' => 17],
+   22 => ['color' => ORANGE, 'captain' => 1, 'count' => 1, 'img' => 13],
 
-*/
+   31 => ['color' => PURPLE, 'captain' => 0, 'count' => 2, 'img' => 12],
+   32 => ['color' => PURPLE, 'captain' => 1, 'count' => 2, 'img' => 11],
 
+   41 => ['color' => RED, 'captain' => 0, 'count' => 2, 'img' => 14],
+   43 => ['color' => RED, 'captain' => 2, 'count' => 1, 'img' => 9],
 
+   41 => ['color' => YELLOW, 'captain' => 0, 'count' => 2, 'img' => 10],
+   42 => ['color' => YELLOW, 'captain' => 1, 'count' => 2, 'img' => 8],
+];
 
-
+$this->cannonade_types = [
+   101 => ['colors' => [BLUE, GREEN], 'count' => 6, 'img' => 2],
+   102 => ['colors' => [YELLOW, PURPLE], 'count' => 4, 'img' => 3],
+   103 => ['colors' => [ORANGE, RED, YELLOW], 'count' => 3, 'img' => 4],
+   104 => ['colors' => [RED, ORANGE, YELLOW], 'count' => 3, 'img' => 5],
+   105 => ['colors' => [PURPLE, YELLOW], 'count' => 4, 'img' => 6],
+   105 => ['colors' => [GREEN, BLUE], 'count' => 6, 'img' => 7],
+];

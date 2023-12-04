@@ -4,11 +4,13 @@ class StateManager {
     constructor(private game: Cannonades) {
         this.states = {
             playerTurn: new PlayerTurnState(game),
+            playerTurnShoot: new PlayerTurnShootState(game),
         };
     }
 
     onEnteringState(stateName: string, args: any): void {
         console.log(`Entering state: ${stateName}`);
+        console.log(`|- args :`, args);
         if (this.states[stateName] !== undefined) {
             this.states[stateName].onEnteringState(args.args);
         }
@@ -17,8 +19,10 @@ class StateManager {
     onLeavingState(stateName: string): void {
         console.log(`Leaving state: ${stateName}`);
         if (this.states[stateName] !== undefined) {
+            document.getElementById('customActions').innerHTML = '';
             this.states[stateName].onLeavingState();
         }
+        document.querySelectorAll('.c-card-selected').forEach((div) => div.classList.remove('c-card-selected'));
     }
 
     onUpdateActionButtons(stateName: string, args: any): void {

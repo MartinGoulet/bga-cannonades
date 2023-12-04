@@ -4,6 +4,34 @@ namespace Cannonades\Core;
 
 class Globals extends \APP_DbObject {
 
+    public static function getActionsRemaining() {
+        return self::get('actions') ?? 0;
+    }
+
+    public static function setActionsRemaining(int $value) {
+        self::set('actions', $value);
+    }
+
+    public static function addDamagedShips(int $card_id) {
+        $ships = self::getDamagedShips();
+        $ships[] = $card_id;
+        self::setDamagedShips($ships);
+    }
+
+    public static function getDamagedShips() {
+        return self::get('damaged_ships', true) ?? [];
+    }
+
+    public static function removeDamagedShips(int $card_id) {
+        $ships = self::getDamagedShips();
+        $ships[] = $card_id;
+        self::setDamagedShips($ships);
+    }
+
+    protected static function setDamagedShips($value) {
+        return self::set('damaged_ships', $value);
+    }
+
     /*************************
      **** GENERIC METHODS ****
      *************************/

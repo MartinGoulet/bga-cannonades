@@ -1,5 +1,7 @@
+@import "../node_modules/bga-cards/bga-cards";
 @import 'player-table';
 @import 'table-center';
+@import 'cards/cards.scss';
 
 // #tables-and-center {
 //     position: relative;
@@ -9,7 +11,7 @@
 //     gap: 20px;
 //     flex-direction: column;
 //     margin-right: 10px;
-  
+
 //     #tables {
 //       position: relative;
 //       display: flex;
@@ -20,3 +22,19 @@
 //       flex-direction: column;
 //     }
 //   }
+
+#table {
+    padding-top: 40px;
+}
+
+.c-title {
+    background-color: white;
+    border: 3px solid var(--color);
+    border-radius: 5px;
+    color: var(--color);
+    padding: 5px 15px;
+    font-weight: bold;
+    position: absolute;
+    top: -15px;
+    left: 10px;
+}
