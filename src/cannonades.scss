@@ -38,3 +38,26 @@
     top: -15px;
     left: 10px;
 }
+
+.card-tooltip {
+    .header {
+        font-weight: 700;
+        font-size: 18px;
+        padding-bottom: 6px;
+    }
+
+    table {
+        tr {
+            line-height: 20px;
+        }
+        th {
+            font-weight: 600;
+            padding-right: 10px;
+        }
+
+        td {
+            padding: auto 10px;
+            text-align: center;
+        }
+    }
+}

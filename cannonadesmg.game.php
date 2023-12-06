@@ -169,7 +169,8 @@ class cannonadesmg extends Table {
         }
         $result['players_info'] = $players_info;
 
-        $result['debug'] = self::getCollectionFromDB('SELECT * FROM card');
+        // $result['debug'] = self::getCollectionFromDB('SELECT * FROM card');
+        $result['debug'] = self::getCollectionFromDB('SELECT * FROM global_variables');
 
         return $result;
     }

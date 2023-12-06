@@ -3,6 +3,7 @@
 define("APP_GAMEMODULE_PATH", "");
 
 function clienttranslate($message) {
+    return "";
 }
 
 function totranslate($message) {

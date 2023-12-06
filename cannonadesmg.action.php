@@ -68,6 +68,39 @@ class action_cannonadesmg extends APP_GameAction {
     self::ajaxResponse();
   }
 
+  public function boardShip() {
+    self::setAjaxMode();
+    // Retrieve arguments
+    $card_id = self::getArg("card_id", AT_posint, true);
+    $ship_id = self::getArg("ship_id", AT_posint, true);
+    // Then, call the appropriate method in your game logic, like "playCard" or "myAction"
+    $this->game->checkAction('boardShip');
+    $this->game->boardShip($card_id, $ship_id);
+    self::ajaxResponse();
+  }
+
+  public function vendettaDrawCard() {
+    self::setAjaxMode();
+    $this->game->checkAction('vendettaDrawCard');
+    $this->game->vendettaDrawCard();
+    self::ajaxResponse();
+  }
+
+  public function vendettaDiscardCard() {
+    self::setAjaxMode();
+    $this->game->checkAction('vendettaDiscardCard');
+    $this->game->vendettaDiscardCard();
+    self::ajaxResponse();
+  }
+
+  public function vendettaFlipShip() {
+    self::setAjaxMode();
+    $ship_id = self::getArg("ship_id", AT_posint, true);
+    $this->game->checkAction('vendettaFlipShip');
+    $this->game->vendettaFlipShip($ship_id);
+    self::ajaxResponse();
+  }
+
   public function pass() {
     self::setAjaxMode();
     $this->game->checkAction('pass');

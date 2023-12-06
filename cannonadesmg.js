@@ -1271,6 +1271,9 @@ var CannonadesCardManager = (function (_super) {
             },
             setupFrontDiv: function (card, div) {
                 div.dataset.img = "" + _this.getImgPos(card);
+                if ('type' in card) {
+                    _this.game.addTooltipHtml(_this.getId(card), _this.getTooltip(card), 1000);
+                }
             },
             setupBackDiv: function (card, div) {
                 div.dataset.img = "0";
@@ -1301,8 +1304,58 @@ var CannonadesCardManager = (function (_super) {
         var _a;
         (_a = this.getCardElement(card)) === null || _a === void 0 ? void 0 : _a.classList.add('c-card-selected');
     };
+    CannonadesCardManager.prototype.getTooltip = function (card) {
+        return this.isShip(card) ? this.getTooltipShip(card) : this.getTooltipCannonade(card);
+    };
+    CannonadesCardManager.prototype.getTooltipShip = function (card) {
+        var _a = this.game.gamedatas.ship_types[Number(card.type_arg)], color = _a.color, captain = _a.captain, count = _a.count;
+        return "<div class=\"card-tooltip\">\n         <div class=\"header\">".concat(_('Ship'), "</div>\n         <table>\n            <tr><th>Color</th><td>").concat(color, "</td></tr>\n            <tr><th>Captain's Grin</th><td>").concat(captain, "</td></tr>\n            <tr><th>Count</th><td>").concat(count, "</td></tr>\n            </table>\n      </div>");
+    };
+    CannonadesCardManager.prototype.getTooltipCannonade = function (card) {
+        var _a = this.game.gamedatas.cannonade_types[Number(card.type_arg)], colors = _a.colors, count = _a.count;
+        return "<div class=\"card-tooltip\">\n         <div class=\"header\">".concat(_('Cannonade'), "</div>\n         <table>\n            <tr><th>Colors</th><td>").concat(colors.join(', '), "</td></tr>\n            <tr><th>Count</th><td>").concat(count, "</td></tr>\n         </table>\n      </div>");
+    };
     return CannonadesCardManager;
 }(CardManager));
+var StockHand = (function (_super) {
+    __extends(StockHand, _super);
+    function StockHand(manager, element) {
+        return _super.call(this, manager, element, {
+            cardOverlap: "30px",
+            cardShift: "6px",
+            inclination: 6,
+            sort: sortFunction("type", "type_arg", "id"),
+        }) || this;
+    }
+    StockHand.prototype.addCard = function (card, animation, settings) {
+        var _this = this;
+        var copy = __assign({}, card);
+        return new Promise(function (resolve) {
+            _super.prototype.addCard.call(_this, copy, animation, settings)
+                .then(function () {
+                var count = _this.getCards().length;
+                _this.element.dataset.count = count.toString();
+            })
+                .then(function () { return resolve(true); });
+        });
+    };
+    StockHand.prototype.removeCard = function (card, settings) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2, new Promise(function (resolve) {
+                        _super.prototype.removeCard.call(_this, card, settings)
+                            .then(function () {
+                            var count = _this.getCards().length;
+                            _this.element.dataset.count = count.toString();
+                        })
+                            .then(function () { return resolve(true); });
+                    })];
+            });
+        });
+    };
+    return StockHand;
+}(HandStock));
 var NotificationManager = (function () {
     function NotificationManager(game) {
         this.game = game;
@@ -1312,9 +1365,11 @@ var NotificationManager = (function () {
         var notifs = [
             ["onAddShip", undefined],
             ["onDiscardCard", 750],
+            ["onDiscardHand", 750],
             ["onDrawCards", undefined],
             ["onPlayCard", 750],
             ["onRevealShip", 750],
+            ["playerEliminated", 100],
         ];
         this.setupNotifications(notifs);
         ["message"].forEach(function (eventName) {
@@ -1395,7 +1450,7 @@ var PlayerTable = (function () {
         this.board.addCards(game.gamedatas.players_info[this.player_id].board);
     };
     PlayerTable.prototype.setupHand = function (game) {
-        this.hand = new HandStock(this.game.cardManager, document.getElementById("player-table-".concat(this.player_id, "-hand")), { cardOverlap: "10px", cardShift: "6px", inclination: 6, sort: sortFunction("type", "type_arg") });
+        this.hand = new StockHand(this.game.cardManager, document.getElementById("player-table-".concat(this.player_id, "-hand")));
         this.hand.addCards(game.gamedatas.players_info[this.player_id].hand);
     };
     return PlayerTable;
@@ -1438,11 +1493,14 @@ var StateManager = (function () {
         this.states = {
             playerTurn: new PlayerTurnState(game),
             playerTurnShoot: new PlayerTurnShootState(game),
+            playerTurnBoard: new PlayerTurnShootState(game),
+            vendetta: new VendettaState(game),
+            vendettaFlip: new VendettaFlipState(game),
         };
     }
     StateManager.prototype.onEnteringState = function (stateName, args) {
         console.log("Entering state: ".concat(stateName));
-        console.log("|- args :", args);
+        console.log("|- args :", args === null || args === void 0 ? void 0 : args.args);
         if (this.states[stateName] !== undefined) {
             this.states[stateName].onEnteringState(args.args);
         }
@@ -1457,7 +1515,7 @@ var StateManager = (function () {
     };
     StateManager.prototype.onUpdateActionButtons = function (stateName, args) {
         console.log("Update action buttons: ".concat(stateName));
-        if (this.game.isCurrentPlayerActive()) {
+        if (this.states[stateName] !== undefined && this.game.isCurrentPlayerActive()) {
             this.states[stateName].onUpdateActionButtons(args);
         }
     };
@@ -1484,22 +1542,62 @@ var PlayerTurnState = (function () {
         hand.setSelectionMode("none");
         hand.onSelectionChange = undefined;
     };
-    PlayerTurnState.prototype.onUpdateActionButtons = function (_a) {
+    PlayerTurnState.prototype.onUpdateActionButtons = function (args) {
+        this.addButtonAdd();
+        this.addButtonShoot(args);
+        this.addButtonDiscard(args);
+        this.addButtonBoard(args);
+        this.addButtonPass(args);
+    };
+    PlayerTurnState.prototype.addButtonAdd = function () {
         var _this = this;
-        var can_shoot_cannonades = _a.can_shoot_cannonades;
         var handleAdd = function () {
             var selection = _this.game.getCurrentPlayerTable().hand.getSelection();
             if (selection.length !== 1)
                 return;
             _this.game.takeAction("addShip", { card_id: selection[0].id });
         };
-        var handleShoot = function () {
-            _this.game.setClientState("playerTurnShoot", {
+        this.game.addPrimaryActionButton("btn_add", _("Add a new ship"), handleAdd);
+    };
+    PlayerTurnState.prototype.addButtonBoard = function (_a) {
+        var _this = this;
+        var can_shoot_cannonades = _a.can_shoot_cannonades;
+        if (!can_shoot_cannonades)
+            return;
+        var handleBoardDanger = function () {
+            _this.game.confirmationDialog("You will be eliminated from this game since it's your last ship. Do you want to continue?", function () { return handleBoard(); });
+        };
+        var handleBoard = function () {
+            _this.game.setClientState("playerTurnBoard", {
                 descriptionmyturn: _("Select an opponent ship"),
                 args: {
-                    card: _this.game.getCurrentPlayerTable().hand.getSelection()[0],
+                    card: _this.game.getCurrentPlayerTable().board.getSelection()[0],
+                    action: "boardShip",
                 },
             });
+        };
+        if (this.game.getCurrentPlayerTable().board.getCards().length === 1) {
+            this.game.addDangerActionButton("btn_board", _("Board a ship"), handleBoardDanger);
+        }
+        else {
+            this.game.addPrimaryActionButton("btn_board", _("Board a ship"), handleBoard);
+        }
+    };
+    PlayerTurnState.prototype.addButtonDiscard = function (_a) {
+        var _this = this;
+        var can_shoot_cannonades = _a.can_shoot_cannonades, actions_remaining = _a.actions_remaining;
+        var handleDiscardVerification = function () {
+            var willLoseGame = !can_shoot_cannonades &&
+                actions_remaining == 1 &&
+                _this.game.getCurrentPlayerTable().board.getCards().length == 0;
+            if (willLoseGame) {
+                _this.game.confirmationDialog(_("You will be eliminated if you don't add a ship on your board."), function () {
+                    return handleDiscard();
+                });
+            }
+            else {
+                handleDiscard();
+            }
         };
         var handleDiscard = function () {
             var selection = _this.game.getCurrentPlayerTable().hand.getSelection();
@@ -1507,24 +1605,40 @@ var PlayerTurnState = (function () {
                 return;
             _this.game.takeAction("discardCard", { card_id: selection[0].id });
         };
-        var handleBoard = function () {
-            _this.game.setClientState("playerTurnBoard", {
-                descriptionmyturn: _(""),
-                args: {},
+        this.game.addPrimaryActionButton("btn_draw", _("Discard a card to draw"), handleDiscardVerification);
+    };
+    PlayerTurnState.prototype.addButtonPass = function (_a) {
+        var _this = this;
+        var can_shoot_cannonades = _a.can_shoot_cannonades;
+        var handlePass = function () {
+            if (!can_shoot_cannonades && _this.game.getCurrentPlayerTable().board.getCards().length == 0) {
+                _this.game.confirmationDialog(_("You will be eliminated if you don't add a ship on your board."), function () {
+                    return _this.game.takeAction("pass");
+                });
+            }
+            else {
+                _this.game.takeAction("pass");
+            }
+        };
+        this.game.addDangerActionButton("btn_pass", _("Pass"), handlePass);
+    };
+    PlayerTurnState.prototype.addButtonShoot = function (_a) {
+        var _this = this;
+        var can_shoot_cannonades = _a.can_shoot_cannonades;
+        if (!can_shoot_cannonades)
+            return;
+        var handleShoot = function () {
+            _this.game.setClientState("playerTurnShoot", {
+                descriptionmyturn: _("Select an opponent ship"),
+                args: {
+                    card: _this.game.getCurrentPlayerTable().hand.getSelection()[0],
+                    action: "shootCannonade",
+                },
             });
         };
-        var handlePass = function () {
-            _this.game.takeAction("pass");
-        };
-        this.game.addPrimaryActionButton("btn_add", _("Add a new ship"), handleAdd);
         if (can_shoot_cannonades) {
             this.game.addPrimaryActionButton("btn_shoot", _("Shoot an opponent's ship"), handleShoot);
         }
-        this.game.addPrimaryActionButton("btn_draw", _("Discard a card to draw"), handleDiscard);
-        if (can_shoot_cannonades) {
-            this.game.addPrimaryActionButton("btn_board", _("Board a ship"), handleBoard);
-        }
-        this.game.addDangerActionButton("btn_pass", _("Pass"), handlePass);
     };
     PlayerTurnState.prototype.setupBoard = function () {
         var _this = this;
@@ -1600,7 +1714,7 @@ var PlayerTurnShootState = (function () {
     };
     PlayerTurnShootState.prototype.onUpdateActionButtons = function (_a) {
         var _this = this;
-        var card = _a.card;
+        var card = _a.card, action = _a.action;
         var handleConfirm = function () {
             var cards = _this.game
                 .getOpponentsPlayerTable()
@@ -1611,7 +1725,7 @@ var PlayerTurnShootState = (function () {
             }, []);
             if (cards.length !== 1)
                 return;
-            _this.game.takeAction("shootCannonade", {
+            _this.game.takeAction(action, {
                 card_id: card.id,
                 ship_id: cards[0].id,
             });
@@ -1628,6 +1742,88 @@ var PlayerTurnShootState = (function () {
         }
     };
     return PlayerTurnShootState;
+}());
+var VendettaState = (function () {
+    function VendettaState(game) {
+        this.game = game;
+    }
+    VendettaState.prototype.onEnteringState = function (args) { };
+    VendettaState.prototype.onLeavingState = function () { };
+    VendettaState.prototype.onUpdateActionButtons = function (args) {
+        console.log(args);
+        this.addButtonDraw();
+        this.addButtonDiscard(args);
+        this.addButtonFlip(args);
+    };
+    VendettaState.prototype.addButtonDraw = function () {
+        var _this = this;
+        var handleDraw = function () { return _this.game.takeAction("vendettaDrawCard"); };
+        this.game.addPrimaryActionButton("btn_draw", _("Draw a card"), handleDraw);
+    };
+    VendettaState.prototype.addButtonDiscard = function (_a) {
+        var _this = this;
+        var player_name = _a.player_name, player_hand_count = _a.player_hand_count;
+        var handleDiscard = function () { return _this.game.takeAction("vendettaDiscardCard"); };
+        this.game.addPrimaryActionButton("btn_discard", _("${player_name} discard a card").replace("${player_name}", player_name), handleDiscard);
+        this.game.toggleButton("btn_discard", player_hand_count > 0);
+    };
+    VendettaState.prototype.addButtonFlip = function (_a) {
+        var _this = this;
+        var player_id = _a.player_id, player_name = _a.player_name, hidden_ships = _a.hidden_ships;
+        var handleFlip = function () {
+            if (hidden_ships.length === 1) {
+                _this.game.takeAction("vendettaFlipShip", { ship_id: hidden_ships[0] });
+            }
+            else {
+                _this.game.setClientState("vendettaFlip", {
+                    descriptionmyturn: _("Select a ship to flip"),
+                    args: {
+                        player_id: player_id,
+                        hidden_ships: hidden_ships,
+                    },
+                });
+            }
+        };
+        this.game.addPrimaryActionButton("btn_flip", _("${player_name} turn a ship face up").replace("${player_name}", player_name), handleFlip);
+        this.game.toggleButton("btn_flip", hidden_ships.length > 0);
+    };
+    return VendettaState;
+}());
+var VendettaFlipState = (function () {
+    function VendettaFlipState(game) {
+        this.game = game;
+    }
+    VendettaFlipState.prototype.onEnteringState = function (_a) {
+        var _this = this;
+        var player_id = _a.player_id, hidden_ships = _a.hidden_ships;
+        this.player_id = player_id;
+        var handleSelectionChange = function (selection) {
+            _this.game.toggleButton("btn_confirm", selection.length === 1);
+        };
+        var board = this.game.getPlayerTable(this.player_id).board;
+        var selectable = board.getCards().filter(function (card) { return hidden_ships.includes(card['id']); });
+        board.setSelectionMode("single");
+        board.setSelectableCards(selectable);
+        board.onSelectionChange = handleSelectionChange;
+    };
+    VendettaFlipState.prototype.onLeavingState = function () {
+        var board = this.game.getPlayerTable(this.player_id).board;
+        board.setSelectionMode("none");
+        board.onSelectionChange = undefined;
+    };
+    VendettaFlipState.prototype.onUpdateActionButtons = function (_a) {
+        var _this = this;
+        var player_id = _a.player_id;
+        var handleConfirm = function () {
+            var selection = _this.game.getPlayerTable(player_id).board.getSelection();
+            if (selection.length !== 1)
+                return;
+            _this.game.takeAction("vendettaFlipShip", { ship_id: selection[0].id });
+        };
+        this.game.addPrimaryActionButton("btn_confirm", _("Confirm"), handleConfirm);
+        this.game.addActionButtonClientCancel();
+    };
+    return VendettaFlipState;
 }());
 var Cannonades = (function () {
     function Cannonades() {

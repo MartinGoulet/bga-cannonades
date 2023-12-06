@@ -43,3 +43,24 @@
       box-shadow: inset 0 0 10px 5px #0885c3;
    }
 }
+
+.hand-stock {
+   .card {
+      &:hover {
+         z-index: 10;
+      }
+   }
+   &[data-count="10"],
+   &[data-count="11"] {
+      --card-overlap: 40px !important;
+      --card-shift: 5px !important;
+      --card-inclination: 5deg !important;
+   }
+
+   &[data-count="12"],
+   &[data-count="13"] {
+      --card-overlap: 50px !important;
+      --card-shift: 4px !important;
+      --card-inclination: 4deg !important;
+   }
+}

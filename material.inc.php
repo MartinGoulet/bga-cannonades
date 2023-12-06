@@ -22,25 +22,25 @@
 
 
 $this->ship_types = [
-   1 => ['color' => BLUE, 'captain' => 0, 'count' => 3, 'img' => 20],
-   2 => ['color' => BLUE, 'captain' => 1, 'count' => 2, 'img' => 19],
-   3 => ['color' => BLUE, 'captain' => 2, 'count' => 1, 'img' => 16],
+   1 => ['color' => BLUE, 'captain' => 0, 'count' => 3, 'sail' => 'left', 'img' => 20],
+   2 => ['color' => BLUE, 'captain' => 1, 'count' => 2, 'sail' => 'left', 'img' => 19],
+   3 => ['color' => BLUE, 'captain' => 2, 'count' => 1, 'sail' => 'left', 'img' => 16],
 
-   11 => ['color' => GREEN, 'captain' => 0, 'count' => 3, 'img' => 18],
-   12 => ['color' => GREEN, 'captain' => 1, 'count' => 2, 'img' => 15],
-   13 => ['color' => GREEN, 'captain' => 2, 'count' => 1, 'img' => 21],
+   11 => ['color' => GREEN, 'captain' => 0, 'count' => 3, 'sail' => 'left', 'img' => 18],
+   12 => ['color' => GREEN, 'captain' => 1, 'count' => 2, 'sail' => 'left', 'img' => 15],
+   13 => ['color' => GREEN, 'captain' => 2, 'count' => 1, 'sail' => 'left', 'img' => 21],
 
-   21 => ['color' => ORANGE, 'captain' => 0, 'count' => 2, 'img' => 17],
-   22 => ['color' => ORANGE, 'captain' => 1, 'count' => 1, 'img' => 13],
+   21 => ['color' => ORANGE, 'captain' => 0, 'count' => 2, 'sail' => 'right', 'img' => 17],
+   22 => ['color' => ORANGE, 'captain' => 1, 'count' => 1, 'sail' => 'right', 'img' => 13],
 
-   31 => ['color' => PURPLE, 'captain' => 0, 'count' => 2, 'img' => 12],
-   32 => ['color' => PURPLE, 'captain' => 1, 'count' => 2, 'img' => 11],
+   31 => ['color' => PURPLE, 'captain' => 0, 'count' => 2, 'sail' => 'left', 'img' => 12],
+   32 => ['color' => PURPLE, 'captain' => 1, 'count' => 2, 'sail' => 'left', 'img' => 11],
 
-   41 => ['color' => RED, 'captain' => 0, 'count' => 2, 'img' => 14],
-   43 => ['color' => RED, 'captain' => 2, 'count' => 1, 'img' => 9],
+   41 => ['color' => RED, 'captain' => 0, 'count' => 2, 'sail' => 'right', 'img' => 14],
+   43 => ['color' => RED, 'captain' => 2, 'count' => 1, 'sail' => 'right', 'img' => 9],
 
-   41 => ['color' => YELLOW, 'captain' => 0, 'count' => 2, 'img' => 10],
-   42 => ['color' => YELLOW, 'captain' => 1, 'count' => 2, 'img' => 8],
+   41 => ['color' => YELLOW, 'captain' => 0, 'count' => 2, 'sail' => 'right', 'img' => 10],
+   42 => ['color' => YELLOW, 'captain' => 1, 'count' => 2, 'sail' => 'right', 'img' => 8],
 ];
 
 $this->cannonade_types = [

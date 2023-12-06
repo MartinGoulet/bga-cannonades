@@ -1,6 +1,6 @@
 class PlayerTurnShootState implements StateHandler {
    constructor(private game: Cannonades) {}
-   onEnteringState({ card }: PlayerTurnShoot): void {
+   onEnteringState({ card }: PlayerTurnShootArgs): void {
       this.game.cardManager.markAsSelected(card);
 
       const handleSelectionChange = (table: PlayerTable, selection: CannonadesCard[]) => {
@@ -23,7 +23,7 @@ class PlayerTurnShootState implements StateHandler {
       }
       this.game.getCurrentPlayerTable().hand.unselectAll();
    }
-   onUpdateActionButtons({ card }: PlayerTurnShoot): void {
+   onUpdateActionButtons({ card, action }: PlayerTurnShootArgs): void {
       const handleConfirm = () => {
          const cards = this.game
             .getOpponentsPlayerTable()
@@ -35,7 +35,7 @@ class PlayerTurnShootState implements StateHandler {
 
          if (cards.length !== 1) return;
 
-         this.game.takeAction("shootCannonade", {
+         this.game.takeAction(action, {
             card_id: card.id,
             ship_id: cards[0].id,
          });
@@ -53,6 +53,7 @@ class PlayerTurnShootState implements StateHandler {
    }
 }
 
-interface PlayerTurnShoot {
+interface PlayerTurnShootArgs {
    card: CannonadesCard;
+   action: string;
 }

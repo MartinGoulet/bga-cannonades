@@ -11,6 +11,13 @@ const ST_TURN_DRAW = 10;
 const ST_PLAYER_TURN = 2;
 const ST_PLAYER_TURN_NEXT = 3;
 const ST_PLAYER_TURN_END = 4;
+const ST_PLAYER_NEXT_ACTION = 5;
+
+const ST_VENDETTA = 7;
+const ST_VENDETTA_NEXT = 8;
+const ST_VENDETTA_SWITCH = 9;
+
+const ST_FINAL_SCORING = 98;
 
 /**
  * Card type
@@ -21,12 +28,12 @@ const CARD_TYPE_CANNONADE = 2;
 /**
  * Ship Colors
  */
-const BLUE = 'blue';
-const GREEN = 'green';
-const PURPLE = 'purple';
-const ORANGE = 'orange';
-const RED = 'red';
-const YELLOW = 'yellow';
+define('BLUE', clienttranslate('Blue'));
+define('GREEN', clienttranslate('Green'));
+define('PURPLE', clienttranslate('Purple'));
+define('ORANGE', clienttranslate('Orange'));
+define('RED', clienttranslate('Red'));
+define('YELLOW', clienttranslate('Yellow'));
 
 /**
  * Stats

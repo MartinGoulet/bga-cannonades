@@ -31,10 +31,9 @@ class PlayerTable {
    }
 
    private setupHand(game: Cannonades) {
-      this.hand = new HandStock<CannonadesCard>(
+      this.hand = new StockHand<CannonadesCard>(
          this.game.cardManager,
-         document.getElementById(`player-table-${this.player_id}-hand`),
-         { cardOverlap: "10px", cardShift: "6px", inclination: 6, sort: sortFunction("type", "type_arg") }
+         document.getElementById(`player-table-${this.player_id}-hand`)
       );
       this.hand.addCards(game.gamedatas.players_info[this.player_id].hand);
    }

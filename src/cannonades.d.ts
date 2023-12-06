@@ -19,10 +19,15 @@ interface CannonadesGamedatas extends BgaGamedatas {
 }
 
 type ShipType = {
+    color: string;
+    captain: number;
+    count: number;
     img: number;
 }
 
 type CannonadeType = {
+    colors: string[];
+    count: number;
     img: number;
 }
 

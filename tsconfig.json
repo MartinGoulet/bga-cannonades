@@ -28,6 +28,7 @@
         "node_modules/bga-cards/src/card-manager.ts",
 
         "src/cards/card-manager.ts",
+        "src/cards/stock-hand.ts",
         
         "src/notification.ts",
         "src/player-table.ts",
@@ -36,6 +37,8 @@
         "src/states/state-manager.ts",
         "src/states/player-turn.ts",
         "src/states/player-turn-shoot.ts",
+        "src/states/vendetta.ts",
+        "src/states/vendetta-flip.ts",
 
         "src/cannonades.d.ts",
         "src/cannonades.ts",

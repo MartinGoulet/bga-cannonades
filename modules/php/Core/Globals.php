@@ -5,7 +5,7 @@ namespace Cannonades\Core;
 class Globals extends \APP_DbObject {
 
     public static function getActionsRemaining() {
-        return self::get('actions') ?? 0;
+        return intval(self::get('actions')) ?? 0;
     }
 
     public static function setActionsRemaining(int $value) {
@@ -30,6 +30,36 @@ class Globals extends \APP_DbObject {
 
     protected static function setDamagedShips($value) {
         return self::set('damaged_ships', $value);
+    }
+
+    public static function getPlayerTurn() {
+        return intval(self::get('player_turn'));
+    }
+
+    public static function setPlayerTurn(int $player_id) {
+        self::set('player_turn', $player_id);
+    }
+
+    public static function getPlayerStandoff() {
+        return intval(self::get('player_standoff'));
+    }
+
+    public static function setPlayerStandoff(int $player_id) {
+        self::set('player_standoff', $player_id);
+    }
+
+    public static function addVendetta(int $player_id, int $from_player_id) {
+        $players = self::getVendetta();
+        $players[] = ['player_id' => $player_id, 'from_player_id' => $from_player_id];
+        self::setVendetta($players);
+    }
+
+    public static function getVendetta() {
+        return self::get('vendetta', true) ?? [];
+    }
+
+    public static function setVendetta($value) {
+        return self::set('vendetta', $value);
     }
 
     /*************************

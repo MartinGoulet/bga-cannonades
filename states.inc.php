@@ -96,9 +96,20 @@ $gameEngineState = [
             "pass"
         ],
         "transitions" => [
+            "" => ST_PLAYER_NEXT_ACTION,
+        ],
+    ],
+
+    ST_PLAYER_NEXT_ACTION => [
+        "name" => "playerNextAction",
+        "type" => "game",
+        "action" => "stPlayerNextAction",
+        "transitions" => [
+            "end" => ST_FINAL_SCORING,
             "next" => ST_PLAYER_TURN,
             "discard" => ST_PLAYER_TURN_END,
             "next_player" => ST_PLAYER_TURN_NEXT,
+            "vendetta" => ST_VENDETTA_SWITCH,
         ],
     ],
 
@@ -123,4 +134,53 @@ $gameEngineState = [
     ],
 ];
 
-$machinestates = $basicGameStates + $gameEngineState;
+$vendettaStates = [
+
+    ST_VENDETTA_SWITCH => [
+        "name" => "vendettaSwitch",
+        "type" => "game",
+        "action" => "stVendettaSwitch",
+        "transitions" => [
+            "" => ST_VENDETTA,
+        ],
+    ],
+
+    ST_VENDETTA => [
+        "name" => "vendetta",
+        "description" => clienttranslate('VENDETTA : ${actplayer} must take an action or pass'),
+        "descriptionmyturn" => clienttranslate('VENDETTA : ${you} must take an action or pass'),
+        "args" => "argVendetta",
+        "type" => "activeplayer",
+        "possibleactions" => [
+            "vendettaDrawCard",
+            "vendettaDiscardCard",
+            "vendettaFlipShip",
+        ],
+        "transitions" => [
+            "" => ST_VENDETTA_NEXT,
+        ],
+    ],
+
+    ST_VENDETTA_NEXT => [
+        "name" => "vendettaNext",
+        "type" => "game",
+        "action" => "stVendettaNext",
+        "transitions" => [
+            "next" => ST_VENDETTA,
+            "end" => ST_PLAYER_TURN,
+        ],
+    ],
+];
+
+$scoringStates = [
+    ST_FINAL_SCORING => [
+        "name" => "finalScoring",
+        "type" => "game",
+        "action" => "stFinalScoring",
+        "transitions" => [
+            "" => ST_BGA_GAME_END,
+        ],
+    ],
+];
+
+$machinestates = $basicGameStates + $gameEngineState + $vendettaStates;

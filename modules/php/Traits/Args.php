@@ -26,4 +26,20 @@ trait Args {
             'actions_remaining' => Globals::getActionsRemaining(),
         ];
     }
+
+    function argVendetta() {
+        $vendettas = Globals::getVendetta();
+        $vendetta = array_shift($vendettas);
+
+        $player_id = intval($vendetta['from_player_id']);
+        $ships = array_values(Card::getBoard($player_id));
+        $ships = array_filter($ships, fn($card) => !array_key_exists('type_arg', $card));
+        return [
+            'player_id' => $player_id,
+            'player_name' => Game::get()->getPlayerNameById($player_id),
+            'player_hand_count' => Card::countCardInHand($player_id),
+            'hidden_ships' => array_column($ships, 'id'),
+            'ships' => $ships,
+        ];
+    }
 }

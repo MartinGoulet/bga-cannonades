@@ -10,7 +10,7 @@ class Card {
     public static function addShipToBoard(int $player_id, int $card_id) {
         $deck = Game::get()->deck;
         $card = $deck->getCard($card_id);
-        if($card['location'] !== 'hand' || intval($card['location_arg']) !== $player_id) {
+        if ($card['location'] !== 'hand' || intval($card['location_arg']) !== $player_id) {
             var_dump($card);
             throw new BgaUserException("The card is not in your hand");
         }
@@ -46,7 +46,7 @@ class Card {
     static function discardCards($cards) {
         $deck = Game::get()->deck;
         foreach ($cards as $card_id => $card) {
-            $deck->insertCardOnExtremePosition($card_id, 'discard', true);
+            $deck->playCard($card['id']);
         }
     }
 
@@ -80,17 +80,21 @@ class Card {
     }
 
     static function setupDeck() {
-        $cards = [];
-        foreach (Game::get()->ship_types as $type_arg => $info) {
-            $cards[] = ['type' => CARD_TYPE_SHIP, 'type_arg' => $type_arg, 'nbr' => $info['count']];
-        }
-        foreach (Game::get()->cannonade_types as $type_arg => $info) {
-            $cards[] = ['type' => CARD_TYPE_CANNONADE, 'type_arg' => $type_arg, 'nbr' => $info['count']];
-        }
-
         $deck = Game::get()->deck;
-        $deck->createCards($cards);
-        $deck->shuffle('deck');
+
+        $ships = [];
+        foreach (Game::get()->ship_types as $type_arg => $info) {
+            $ships[] = ['type' => CARD_TYPE_SHIP, 'type_arg' => $type_arg, 'nbr' => $info['count']];
+        }
+        $deck->createCards($ships, 'ships');
+        $deck->shuffle('ships');
+
+        $cannonades = [];
+        foreach (Game::get()->cannonade_types as $type_arg => $info) {
+            $cannonades[] = ['type' => CARD_TYPE_CANNONADE, 'type_arg' => $type_arg, 'nbr' => $info['count']];
+        }
+        $deck->createCards($cannonades, 'cannonades');
+        $deck->shuffle('cannonades');
     }
 
     static function setupPlayersHand() {
@@ -98,17 +102,15 @@ class Card {
         $deck = Game::get()->deck;
 
         foreach ($players as $player_id => $player) {
-            $deck->pickCards(5, 'deck', $player_id);
+            $deck->pickCards(2, 'ships', $player_id);
         }
 
-        foreach ($players as $player_id => $player) {
-            $cards = $deck->getCardsOfTypeInLocation(CARD_TYPE_SHIP, null, 'hand', $player_id);
+        $deck->moveAllCardsInLocation('ships', 'deck');
+        $deck->moveAllCardsInLocation('cannonades', 'deck');
+        $deck->shuffle('deck');
 
-            while (count($cards) <= 1) {
-                $deck->moveAllCardsInLocation('hand', 'deck', $player_id, 0);
-                $deck->shuffle('deck');
-                $deck->pickCards(5, 'deck', $player_id);
-            }
+        foreach ($players as $player_id => $player) {
+            $deck->pickCards(3, 'deck', $player_id);
         }
     }
 }

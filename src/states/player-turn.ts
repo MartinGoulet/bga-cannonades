@@ -3,6 +3,7 @@ class PlayerTurnState implements StateHandler {
    private can_shoot_cannonades: boolean;
 
    constructor(private game: Cannonades) {}
+
    onEnteringState({ can_add_ship, can_shoot_cannonades }: PlayerTurnArgs): void {
       if (!this.game.isCurrentPlayerActive()) return;
       this.can_add_ship = can_add_ship;
@@ -12,6 +13,7 @@ class PlayerTurnState implements StateHandler {
       this.setupHand();
       this.checkButtons();
    }
+
    onLeavingState(): void {
       const { hand, board } = this.game.getCurrentPlayerTable();
       board.setSelectionMode("none");
@@ -19,44 +21,104 @@ class PlayerTurnState implements StateHandler {
       hand.setSelectionMode("none");
       hand.onSelectionChange = undefined;
    }
-   onUpdateActionButtons({ can_shoot_cannonades }: PlayerTurnArgs): void {
+
+   onUpdateActionButtons(args: PlayerTurnArgs): void {
+      this.addButtonAdd();
+      this.addButtonShoot(args);
+      this.addButtonDiscard(args);
+      this.addButtonBoard(args);
+      this.addButtonPass(args);
+   }
+
+   private addButtonAdd() {
       const handleAdd = () => {
          const selection = this.game.getCurrentPlayerTable().hand.getSelection();
          if (selection.length !== 1) return;
          this.game.takeAction("addShip", { card_id: selection[0].id });
       };
-      const handleShoot = () => {
-         this.game.setClientState("playerTurnShoot", {
+
+      this.game.addPrimaryActionButton("btn_add", _("Add a new ship"), handleAdd);
+   }
+
+   private addButtonBoard({ can_shoot_cannonades }: PlayerTurnArgs) {
+      if (!can_shoot_cannonades) return;
+
+      const handleBoardDanger = () => {
+         this.game.confirmationDialog(
+            "You will be eliminated from this game since it's your last ship. Do you want to continue?",
+            () => handleBoard()
+         );
+      };
+
+      const handleBoard = () => {
+         this.game.setClientState("playerTurnBoard", {
             descriptionmyturn: _("Select an opponent ship"),
             args: {
-               card: this.game.getCurrentPlayerTable().hand.getSelection()[0],
-            },
+               card: this.game.getCurrentPlayerTable().board.getSelection()[0],
+               action: "boardShip",
+            } as PlayerTurnShootArgs,
          });
+      };
+
+      if (this.game.getCurrentPlayerTable().board.getCards().length === 1) {
+         this.game.addDangerActionButton("btn_board", _("Board a ship"), handleBoardDanger);
+      } else {
+         this.game.addPrimaryActionButton("btn_board", _("Board a ship"), handleBoard);
+      }
+   }
+
+   private addButtonDiscard({ can_shoot_cannonades, actions_remaining }: PlayerTurnArgs) {
+      const handleDiscardVerification = () => {
+         const willLoseGame =
+            !can_shoot_cannonades &&
+            actions_remaining == 1 &&
+            this.game.getCurrentPlayerTable().board.getCards().length == 0;
+         if (willLoseGame) {
+            this.game.confirmationDialog(_("You will be eliminated if you don't add a ship on your board."), () =>
+               handleDiscard()
+            );
+         } else {
+            handleDiscard();
+         }
       };
       const handleDiscard = () => {
          const selection = this.game.getCurrentPlayerTable().hand.getSelection();
          if (selection.length !== 1) return;
          this.game.takeAction("discardCard", { card_id: selection[0].id });
       };
-      const handleBoard = () => {
-         this.game.setClientState("playerTurnBoard", {
-            descriptionmyturn: _(""),
-            args: {},
+
+      this.game.addPrimaryActionButton("btn_draw", _("Discard a card to draw"), handleDiscardVerification);
+   }
+
+   private addButtonPass({ can_shoot_cannonades }: PlayerTurnArgs) {
+      const handlePass = () => {
+         if (!can_shoot_cannonades && this.game.getCurrentPlayerTable().board.getCards().length == 0) {
+            this.game.confirmationDialog(_("You will be eliminated if you don't add a ship on your board."), () =>
+               this.game.takeAction("pass")
+            );
+         } else {
+            this.game.takeAction("pass");
+         }
+      };
+      this.game.addDangerActionButton("btn_pass", _("Pass"), handlePass);
+   }
+
+   private addButtonShoot({ can_shoot_cannonades }: PlayerTurnArgs) {
+      if (!can_shoot_cannonades) return;
+
+      const handleShoot = () => {
+         this.game.setClientState("playerTurnShoot", {
+            descriptionmyturn: _("Select an opponent ship"),
+            args: {
+               card: this.game.getCurrentPlayerTable().hand.getSelection()[0],
+               action: "shootCannonade",
+            } as PlayerTurnShootArgs,
          });
       };
-      const handlePass = () => {
-         this.game.takeAction("pass");
-      };
 
-      this.game.addPrimaryActionButton("btn_add", _("Add a new ship"), handleAdd);
       if (can_shoot_cannonades) {
          this.game.addPrimaryActionButton("btn_shoot", _("Shoot an opponent's ship"), handleShoot);
       }
-      this.game.addPrimaryActionButton("btn_draw", _("Discard a card to draw"), handleDiscard);
-      if (can_shoot_cannonades) {
-         this.game.addPrimaryActionButton("btn_board", _("Board a ship"), handleBoard);
-      }
-      this.game.addDangerActionButton("btn_pass", _("Pass"), handlePass);
    }
 
    private setupBoard() {

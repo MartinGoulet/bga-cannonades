@@ -5,9 +5,11 @@ class NotificationManager {
       const notifs: [string, number?][] = [
          ["onAddShip", undefined],
          ["onDiscardCard", 750],
+         ["onDiscardHand", 750],
          ["onDrawCards", undefined],
          ["onPlayCard", 750],
          ["onRevealShip", 750],
+         ["playerEliminated", 100],
       ];
 
       this.setupNotifications(notifs);
