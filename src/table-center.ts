@@ -1,12 +1,17 @@
 class TableCenter {
    public deck: Deck<CannonadesCard>;
-   public discard: Deck<CannonadesCard>;
+   public discard: StockDiscard<CannonadesCard>;
+   public discard_faceup: LineStock<CannonadesCard>;
    public played_card: LineStock<CannonadesCard>;
 
    constructor(private game: Cannonades) {
       this.setupDeck(game);
       this.setupDiscard(game);
       this.setupPlayedCard(game);
+   }
+
+   public displayDiscard(visible: boolean) {
+      document.getElementById("table").dataset.display_discard = visible ? "true" : "false";
    }
 
    private setupDeck(game: Cannonades) {
@@ -21,15 +26,40 @@ class TableCenter {
    }
 
    private setupDiscard(game: Cannonades) {
-      this.discard = new Deck<CannonadesCard>(game.cardManager, document.getElementById("discard"), {
-         cardNumber: 0,
-         counter: {
-            hideWhenEmpty: false,
-         },
-         autoRemovePreviousCards: false,
-      });
+      const html = `<div id="discard-display-wrapper" class="whiteblock">
+         <div class="c-title">${_("Discard")}</div>
+         <div id="discard-display"></div>
+      </div>`;
+      document.getElementById("zones").insertAdjacentHTML("beforeend", html);
+
+      this.discard_faceup = new LineStock<CannonadesCard>(
+         game.discardManager,
+         document.getElementById("discard-display"),
+         {
+            gap: "2px",
+            center: false,
+         }
+      );
+
+      this.discard = new StockDiscard<CannonadesCard>(game.cardManager, document.getElementById("discard"));
+
+      this.discard.onAddCard = (card: CannonadesCard) => {
+         this.discard_faceup.addCard(card);
+      };
+      this.discard.onRemoveCard = (card: CannonadesCard) => {
+         this.discard_faceup.removeCard(card);
+      };
 
       this.discard.addCards(game.gamedatas.discard);
+
+      document
+         .getElementById("discard")
+         .insertAdjacentHTML("afterbegin", `<div id="eye-icon-discard" class="eye-icon discard"></div>`);
+
+      const tableElement = document.getElementById("table");
+      document.getElementById("eye-icon-discard").addEventListener("click", () => {
+         tableElement.dataset.display_discard = tableElement.dataset.display_discard == "false" ? "true" : "false";
+      });
    }
 
    private setupPlayedCard(game: Cannonades) {

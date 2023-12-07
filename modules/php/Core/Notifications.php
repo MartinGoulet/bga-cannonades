@@ -23,6 +23,16 @@ class Notifications extends \APP_DbObject {
         ]);
     }
 
+    public static function discardCards(int $player_id, array $cards) {
+        $message = clienttranslate('${player_name} discards ${nbr} card(s)');
+        self::notifyAll("onDiscardHand", $message, [
+            'player_id' => $player_id,
+            'player_name' => self::getPlayerName($player_id),
+            'cards' => $cards,
+            'nbr' => count($cards),
+        ]);
+    }
+
     public static function discardHand(int $player_id, array $cards) {
         $message = clienttranslate('${player_name} discards his hand');
         self::notifyAll("onDiscardHand", $message, [
@@ -63,6 +73,13 @@ class Notifications extends \APP_DbObject {
             'player_id' => $player_id,
             'player_name' => self::getPlayerName($player_id),
             'card' => $ship,
+        ]);
+    }
+
+    static function updateScore(int $player_id, int $score) {
+        self::notifyAll("onUpdateScore", '', [
+            'player_id' => $player_id,
+            'player_score' => $score,
         ]);
     }
 

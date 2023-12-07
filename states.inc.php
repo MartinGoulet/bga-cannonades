@@ -78,7 +78,8 @@ $gameEngineState = [
         "type" => "game",
         "action" => "stDraw",
         "transitions" => [
-            "" => ST_PLAYER_TURN,
+            "next" => ST_PLAYER_TURN,
+            "standoff" => ST_PLAYER_STANDOFF,
         ],
     ],
 
@@ -107,16 +108,17 @@ $gameEngineState = [
         "transitions" => [
             "end" => ST_FINAL_SCORING,
             "next" => ST_PLAYER_TURN,
-            "discard" => ST_PLAYER_TURN_END,
+            "discard" => ST_PLAYER_TURN_DISCARD,
             "next_player" => ST_PLAYER_TURN_NEXT,
             "vendetta" => ST_VENDETTA_SWITCH,
         ],
     ],
 
-    ST_PLAYER_TURN_END => [
-        "name" => "playerTurn",
-        "description" => clienttranslate('${actplayer} must discard to hand size'),
-        "descriptionmyturn" => clienttranslate('${you} must discard to hand size'),
+    ST_PLAYER_TURN_DISCARD => [
+        "name" => "playerTurnDiscard",
+        "description" => clienttranslate('${actplayer} must discard ${nbr} card(s)'),
+        "descriptionmyturn" => clienttranslate('${you} must discard ${nbr} card(s)'),
+        "args" => "argPlayerTurnDiscard",
         "type" => "activeplayer",
         "possibleactions" => ["discard"],
         "transitions" => [
@@ -172,6 +174,22 @@ $vendettaStates = [
     ],
 ];
 
+$standoffStates = [
+    ST_PLAYER_STANDOFF => [
+        "name" => "playerTurnStandoff",
+        "description" => clienttranslate('${actplayer} must pick a cannonade from the discard'),
+        "descriptionmyturn" => clienttranslate('${you} must pick a cannonade from the discard'),
+        "args" => "argPlayerTurnStandoff",
+        "type" => "activeplayer",
+        "possibleactions" => [
+            "standoff",
+        ],
+        "transitions" => [
+            "" => ST_PLAYER_TURN,
+        ],
+    ],
+];
+
 $scoringStates = [
     ST_FINAL_SCORING => [
         "name" => "finalScoring",
@@ -183,4 +201,4 @@ $scoringStates = [
     ],
 ];
 
-$machinestates = $basicGameStates + $gameEngineState + $vendettaStates;
+$machinestates = $basicGameStates + $gameEngineState + $vendettaStates + $standoffStates + $scoringStates;

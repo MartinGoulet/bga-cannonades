@@ -10,7 +10,7 @@ class PlayerTurnState implements StateHandler {
       this.can_shoot_cannonades = can_shoot_cannonades;
 
       this.setupBoard();
-      this.setupHand();
+      this.setupHand(can_shoot_cannonades);
       this.checkButtons();
    }
 
@@ -91,8 +91,10 @@ class PlayerTurnState implements StateHandler {
    }
 
    private addButtonPass({ can_shoot_cannonades }: PlayerTurnArgs) {
+      const {board} = this.game.getCurrentPlayerTable();
+
       const handlePass = () => {
-         if (!can_shoot_cannonades && this.game.getCurrentPlayerTable().board.getCards().length == 0) {
+         if (!can_shoot_cannonades && board.getCards().length == 0) {
             this.game.confirmationDialog(_("You will be eliminated if you don't add a ship on your board."), () =>
                this.game.takeAction("pass")
             );

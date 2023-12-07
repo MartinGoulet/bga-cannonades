@@ -1,7 +1,7 @@
 class CannonadesCardManager extends CardManager<CannonadesCard> {
-   constructor(public game: Cannonades) {
+   constructor(public game: Cannonades, prefix: string) {
       super(game, {
-         getId: (card) => `card-${card.id}`,
+         getId: (card) => `${prefix}-${card.id}`,
          setupDiv: (card, div: HTMLDivElement) => {
             div.dataset.type = card.type;
             div.dataset.typeArg = card.type_arg;

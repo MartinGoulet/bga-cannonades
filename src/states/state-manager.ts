@@ -6,6 +6,8 @@ class StateManager {
             playerTurn: new PlayerTurnState(game),
             playerTurnShoot: new PlayerTurnShootState(game),
             playerTurnBoard: new PlayerTurnShootState(game),
+            playerTurnDiscard: new PlayerTurnDiscardState(game),
+            playerTurnStandoff: new PlayerTurnStandoffState(game),
             vendetta: new VendettaState(game),
             vendettaFlip: new VendettaFlipState(game),
         };

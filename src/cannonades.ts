@@ -1,6 +1,7 @@
 class Cannonades implements ebg.core.gamegui {
    public stateManager: StateManager;
    public cardManager: CannonadesCardManager;
+   public discardManager: CannonadesCardManager;
    public notifManager: NotificationManager;
    public playersTables: PlayerTable[];
    public tableCenter: TableCenter;
@@ -8,7 +9,8 @@ class Cannonades implements ebg.core.gamegui {
 
    public setup(gamedatas: CannonadesGamedatas) {
       this.stateManager = new StateManager(this);
-      this.cardManager = new CannonadesCardManager(this);
+      this.cardManager = new CannonadesCardManager(this, 'card');
+      this.discardManager = new CannonadesCardManager(this, 'discard-card');
       this.notifManager = new NotificationManager(this);
       this.tableCenter = new TableCenter(this);
       this.createPlayerTables(gamedatas);

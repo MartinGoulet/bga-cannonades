@@ -2,7 +2,6 @@
 
 namespace Cannonades\Traits;
 
-use BgaUserException;
 use Cannonades\Core\Card;
 use Cannonades\Core\Game;
 use Cannonades\Core\Globals;
@@ -134,6 +133,29 @@ trait Actions {
         Globals::addDamagedShips($ship_id);
         $ship = Card::get($ship_id);
         Notifications::revealShip($ship);
+
+        $player_id = intval($ship['location_arg']);
+        $current_player_id = Game::get()->getCurrentPlayerId();
+        $ship_type = Game::get()->ship_types[$ship['type_arg']];
+        for ($i = 0; $i < $ship_type['captain']; $i++) {
+            Globals::addVendetta($player_id, $current_player_id);
+        }
+
+        Game::get()->gamestate->nextState();
+    }
+
+    function discard(array $card_ids) {
+        $player_id = Game::get()->getCurrentPlayerId();
+        $cards = Card::getCards($card_ids);
+        Card::discardCards($cards);
+        Notifications::discardCards($player_id, array_values($cards));
+        Game::get()->gamestate->nextState();
+    }
+
+    function standoff(int $card_id) {
+        $player_id = Game::get()->getCurrentPlayerId();
+        $card = Card::addCardToHand($card_id, $player_id);
+        Notifications::onDrawCards($player_id, [$card]);
         Game::get()->gamestate->nextState();
     }
 }

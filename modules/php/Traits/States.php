@@ -17,20 +17,31 @@ trait States {
 
     function stDraw() {
         $player_id = intval(Game::get()->getActivePlayerId());
+
         Globals::setActionsRemaining(4);
         Globals::setPlayerTurn($player_id);
         Globals::setVendetta([]);
         Game::get()->incStat(1, STAT_TURN_NUMBER);
         Game::get()->incStat(1, STAT_TURN_NUMBER, $player_id);
 
-        if (Game::get()->getStat(STAT_TURN_NUMBER, $player_id) > 1) {
-            // Draw 5 - number of ship on his board
-            $nbr = 5 - Card::countShipOnBoard($player_id);
-            $cards = Card::draw($player_id, $nbr);
-            Notifications::onDrawCards($player_id, $cards);
-        }
+        if (Globals::getPlayerStandoff() == 0) {
+            if (Game::get()->getStat(STAT_TURN_NUMBER, $player_id) > 1) {
+                // Draw 5 - number of ship on his board
+                $nbr = 5 - Card::countShipOnBoard($player_id);
+                $cards = Card::draw($player_id, $nbr);
+                Notifications::onDrawCards($player_id, $cards);
 
-        Game::get()->gamestate->nextState();
+                if (count($cards) !== $nbr) {
+                    Globals::setPlayerStandoff($player_id);
+                    Globals::setActionsRemaining(0);
+                    Game::get()->gamestate->nextState('standoff');
+                    return;
+                }
+            }
+            Game::get()->gamestate->nextState('next');
+        } else {
+            Game::get()->gamestate->nextState('standoff');
+        }
     }
 
     function stPlayerNextAction() {
@@ -39,7 +50,7 @@ trait States {
         $count_vendetta = count(Globals::getVendetta());
 
         if (Card::countShipOnBoard($player_id) == 0 && $count_actions <= 1) {
-            if(Player::getRemainingPlayers() > 2) {
+            if (Player::getRemainingPlayers() > 2) {
                 Game::get()->gamestate->nextState('next_player');
                 Game::eliminatePlayer($player_id);
             } else {
@@ -54,7 +65,6 @@ trait States {
             Globals::setActionsRemaining($count_actions - 1);
             Game::get()->gamestate->nextState('next');
         } else if (Card::countCardInHand($player_id) > Player::getRemainingPlayers() + 1) {
-            throw new BgaUserException("discard");
             Game::get()->gamestate->nextState('discard');
         } else {
             Game::get()->gamestate->nextState('next_player');
@@ -63,7 +73,10 @@ trait States {
 
     function stPlayerNext() {
         Game::get()->giveExtraTime(Game::get()->getActivePlayerId());
-        Game::get()->activeNextPlayer();
+        $player_id = Game::get()->activeNextPlayer();
+        while (Player::isEliminated($player_id)) {
+            $player_id = Game::get()->activeNextPlayer();
+        }
         Game::get()->gamestate->nextState();
     }
 
@@ -99,10 +112,10 @@ trait States {
 
     function stFinalScoring() {
         $players = Game::get()->loadPlayersBasicInfos();
-        foreach($players as $player_id => $player) {
-            if($player['player_eliminated'] == 0) {
+        foreach ($players as $player_id => $player) {
+            if ($player['player_eliminated'] == 0) {
                 $ships = array_values(Card::getBoard($player_id));
-                $ships = array_filter($ships, fn($card) => !array_key_exists('type_arg', $card));
+                $ships = array_filter($ships, fn ($card) => !array_key_exists('type_arg', $card));
 
                 foreach ($ships as $ship_id) {
                     Globals::addDamagedShips(intval($ship_id));
@@ -112,13 +125,14 @@ trait States {
 
                 $ships = array_values(Card::getBoard($player_id));
 
-                $score = 
+                $score_aux =
                     1000 * count($ships) +
                     100 * $this->countIcons($ships) +
                     10 * $this->maxSails($ships) +
                     1 * ($player_id == Globals::getPlayerStandoff() ? 1 : 0);
 
-                Player::updateScore($player_id, $score);
+                Player::updateScore($player_id, $score_aux);
+                Notifications::updateScore($player_id, 1);
             }
         }
         Game::get()->gamestate->nextState();
@@ -126,7 +140,7 @@ trait States {
 
     private function countIcons(array $ships) {
         $ship_types = Game::get()->ship_types;
-        $colors = array_map(function($card) use ($ship_types) {
+        $colors = array_map(function ($card) use ($ship_types) {
             return $ship_types[intval($card['type_arg'])]['color'];
         }, $ships);
         return count(array_unique($colors));
@@ -134,7 +148,7 @@ trait States {
 
     private function maxSails(array $ships) {
         $ship_types = Game::get()->ship_types;
-        $sails = array_map(function($card) use ($ship_types) {
+        $sails = array_map(function ($card) use ($ship_types) {
             return $ship_types[intval($card['type_arg'])]['sail'];
         }, $ships);
         $counted = array_count_values($sails);

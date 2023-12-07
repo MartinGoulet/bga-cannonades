@@ -1262,9 +1262,9 @@ var CardManager = (function () {
 }());
 var CannonadesCardManager = (function (_super) {
     __extends(CannonadesCardManager, _super);
-    function CannonadesCardManager(game) {
+    function CannonadesCardManager(game, prefix) {
         var _this = _super.call(this, game, {
-            getId: function (card) { return "card-".concat(card.id); },
+            getId: function (card) { return "".concat(prefix, "-").concat(card.id); },
             setupDiv: function (card, div) {
                 div.dataset.type = card.type;
                 div.dataset.typeArg = card.type_arg;
@@ -1356,6 +1356,27 @@ var StockHand = (function (_super) {
     };
     return StockHand;
 }(HandStock));
+var StockDiscard = (function (_super) {
+    __extends(StockDiscard, _super);
+    function StockDiscard(manager, element) {
+        return _super.call(this, manager, element, {
+            cardNumber: 0,
+            counter: {
+                hideWhenEmpty: false,
+            },
+            autoRemovePreviousCards: false,
+        }) || this;
+    }
+    StockDiscard.prototype.addCard = function (card, animation, settings) {
+        this.onAddCard(__assign({}, card));
+        return _super.prototype.addCard.call(this, card, animation, settings);
+    };
+    StockDiscard.prototype.removeCard = function (card, settings) {
+        this.onRemoveCard(__assign({}, card));
+        return _super.prototype.removeCard.call(this, card, settings);
+    };
+    return StockDiscard;
+}(Deck));
 var NotificationManager = (function () {
     function NotificationManager(game) {
         this.game = game;
@@ -1369,6 +1390,7 @@ var NotificationManager = (function () {
             ["onDrawCards", undefined],
             ["onPlayCard", 750],
             ["onRevealShip", 750],
+            ["onUpdateScore", 10],
             ["playerEliminated", 100],
         ];
         this.setupNotifications(notifs);
@@ -1422,6 +1444,11 @@ var NotificationManager = (function () {
         var player_id = Number(args.who_quits);
         this.game.eliminatePlayer(player_id);
     };
+    NotificationManager.prototype.notif_onUpdateScore = function (_a) {
+        var player_id = _a.player_id, player_score = _a.player_score;
+        debugger;
+        this.game.scoreCtrl[player_id].toValue(player_score);
+    };
     NotificationManager.prototype.setupNotifications = function (notifs) {
         var _this = this;
         notifs.forEach(function (_a) {
@@ -1462,6 +1489,9 @@ var TableCenter = (function () {
         this.setupDiscard(game);
         this.setupPlayedCard(game);
     }
+    TableCenter.prototype.displayDiscard = function (visible) {
+        document.getElementById("table").dataset.display_discard = visible ? "true" : "false";
+    };
     TableCenter.prototype.setupDeck = function (game) {
         this.deck = new Deck(game.cardManager, document.getElementById("deck"), {
             cardNumber: game.gamedatas.deck_count,
@@ -1473,14 +1503,28 @@ var TableCenter = (function () {
         });
     };
     TableCenter.prototype.setupDiscard = function (game) {
-        this.discard = new Deck(game.cardManager, document.getElementById("discard"), {
-            cardNumber: 0,
-            counter: {
-                hideWhenEmpty: false,
-            },
-            autoRemovePreviousCards: false,
+        var _this = this;
+        var html = "<div id=\"discard-display-wrapper\" class=\"whiteblock\">\n         <div class=\"c-title\">".concat(_("Discard"), "</div>\n         <div id=\"discard-display\"></div>\n      </div>");
+        document.getElementById("zones").insertAdjacentHTML("beforeend", html);
+        this.discard_faceup = new LineStock(game.discardManager, document.getElementById("discard-display"), {
+            gap: "2px",
+            center: false,
         });
+        this.discard = new StockDiscard(game.cardManager, document.getElementById("discard"));
+        this.discard.onAddCard = function (card) {
+            _this.discard_faceup.addCard(card);
+        };
+        this.discard.onRemoveCard = function (card) {
+            _this.discard_faceup.removeCard(card);
+        };
         this.discard.addCards(game.gamedatas.discard);
+        document
+            .getElementById("discard")
+            .insertAdjacentHTML("afterbegin", "<div id=\"eye-icon-discard\" class=\"eye-icon discard\"></div>");
+        var tableElement = document.getElementById("table");
+        document.getElementById("eye-icon-discard").addEventListener("click", function () {
+            tableElement.dataset.display_discard = tableElement.dataset.display_discard == "false" ? "true" : "false";
+        });
     };
     TableCenter.prototype.setupPlayedCard = function (game) {
         this.played_card = new LineStock(game.cardManager, document.getElementById("played-card"));
@@ -1494,6 +1538,8 @@ var StateManager = (function () {
             playerTurn: new PlayerTurnState(game),
             playerTurnShoot: new PlayerTurnShootState(game),
             playerTurnBoard: new PlayerTurnShootState(game),
+            playerTurnDiscard: new PlayerTurnDiscardState(game),
+            playerTurnStandoff: new PlayerTurnStandoffState(game),
             vendetta: new VendettaState(game),
             vendettaFlip: new VendettaFlipState(game),
         };
@@ -1532,7 +1578,7 @@ var PlayerTurnState = (function () {
         this.can_add_ship = can_add_ship;
         this.can_shoot_cannonades = can_shoot_cannonades;
         this.setupBoard();
-        this.setupHand();
+        this.setupHand(can_shoot_cannonades);
         this.checkButtons();
     };
     PlayerTurnState.prototype.onLeavingState = function () {
@@ -1610,8 +1656,9 @@ var PlayerTurnState = (function () {
     PlayerTurnState.prototype.addButtonPass = function (_a) {
         var _this = this;
         var can_shoot_cannonades = _a.can_shoot_cannonades;
+        var board = this.game.getCurrentPlayerTable().board;
         var handlePass = function () {
-            if (!can_shoot_cannonades && _this.game.getCurrentPlayerTable().board.getCards().length == 0) {
+            if (!can_shoot_cannonades && board.getCards().length == 0) {
                 _this.game.confirmationDialog(_("You will be eliminated if you don't add a ship on your board."), function () {
                     return _this.game.takeAction("pass");
                 });
@@ -1679,6 +1726,43 @@ var PlayerTurnState = (function () {
     };
     return PlayerTurnState;
 }());
+var PlayerTurnDiscardState = (function () {
+    function PlayerTurnDiscardState(game) {
+        this.game = game;
+    }
+    PlayerTurnDiscardState.prototype.onEnteringState = function (_a) {
+        var _this = this;
+        var nbr = _a.nbr;
+        if (!this.game.isCurrentPlayerActive())
+            return;
+        var hand = this.game.getCurrentPlayerTable().hand;
+        var handleSelectionChange = function (selection) {
+            _this.game.toggleButton("btn_confirm", selection.length === nbr);
+        };
+        hand.setSelectionMode("multiple");
+        hand.onSelectionChange = handleSelectionChange;
+    };
+    PlayerTurnDiscardState.prototype.onLeavingState = function () {
+        var hand = this.game.getCurrentPlayerTable().hand;
+        hand.setSelectionMode("none");
+        hand.onSelectionChange = undefined;
+    };
+    PlayerTurnDiscardState.prototype.onUpdateActionButtons = function (_a) {
+        var _this = this;
+        var nbr = _a.nbr;
+        var handleConfirm = function () {
+            var hand = _this.game.getCurrentPlayerTable().hand;
+            var cards = hand.getSelection();
+            if (cards.length !== nbr)
+                return;
+            var card_ids = cards.map(function (card) { return card.id; }).join(";");
+            _this.game.takeAction("discard", { card_ids: card_ids });
+        };
+        this.game.addPrimaryActionButton("btn_confirm", _("Confirm"), handleConfirm);
+        this.game.toggleButton("btn_confirm", false);
+    };
+    return PlayerTurnDiscardState;
+}());
 var PlayerTurnShootState = (function () {
     function PlayerTurnShootState(game) {
         this.game = game;
@@ -1742,6 +1826,41 @@ var PlayerTurnShootState = (function () {
         }
     };
     return PlayerTurnShootState;
+}());
+var PlayerTurnStandoffState = (function () {
+    function PlayerTurnStandoffState(game) {
+        this.game = game;
+    }
+    PlayerTurnStandoffState.prototype.onEnteringState = function (args) {
+        var _this = this;
+        var discard = this.game.tableCenter.discard_faceup;
+        this.game.tableCenter.displayDiscard(true);
+        var handleSelectionChange = function (selection) {
+            _this.game.toggleButton("btn_confirm", selection.length === 1);
+        };
+        discard.setSelectionMode("single");
+        discard.setSelectableCards(discard.getCards().filter(function (card) { return _this.game.discardManager.isCannonade(card); }));
+        discard.onSelectionChange = handleSelectionChange;
+    };
+    PlayerTurnStandoffState.prototype.onLeavingState = function () {
+        this.game.tableCenter.displayDiscard(false);
+        var discard = this.game.tableCenter.discard_faceup;
+        discard.setSelectionMode("none");
+        discard.onSelectionChange = undefined;
+    };
+    PlayerTurnStandoffState.prototype.onUpdateActionButtons = function (args) {
+        var _this = this;
+        var handleConfirm = function () {
+            var hand = _this.game.getCurrentPlayerTable().hand;
+            var cards = hand.getSelection();
+            if (cards.length !== 1)
+                return;
+            _this.game.takeAction("standoff", { card_id: Number(cards[0].id) });
+        };
+        this.game.addPrimaryActionButton("btn_confirm", _("Confirm"), handleConfirm);
+        this.game.toggleButton("btn_confirm", false);
+    };
+    return PlayerTurnStandoffState;
 }());
 var VendettaState = (function () {
     function VendettaState(game) {
@@ -1830,7 +1949,8 @@ var Cannonades = (function () {
     }
     Cannonades.prototype.setup = function (gamedatas) {
         this.stateManager = new StateManager(this);
-        this.cardManager = new CannonadesCardManager(this);
+        this.cardManager = new CannonadesCardManager(this, 'card');
+        this.discardManager = new CannonadesCardManager(this, 'discard-card');
         this.notifManager = new NotificationManager(this);
         this.tableCenter = new TableCenter(this);
         this.createPlayerTables(gamedatas);

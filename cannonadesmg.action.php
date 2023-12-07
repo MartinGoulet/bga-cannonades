@@ -101,12 +101,43 @@ class action_cannonadesmg extends APP_GameAction {
     self::ajaxResponse();
   }
 
+  public function discard() {
+    self::setAjaxMode();
+    $card_ids = self::getArrayArgs("card_ids");
+    $this->game->checkAction('discard');
+    $this->game->discard($card_ids);
+    self::ajaxResponse();
+  }
+
+  public function standoff() {
+    self::setAjaxMode();
+    $card_id = self::getArg("card_id", AT_posint, true);
+    $this->game->checkAction('standoff');
+    $this->game->standoff($card_id);
+    self::ajaxResponse();
+  }
+
   public function pass() {
     self::setAjaxMode();
     $this->game->checkAction('pass');
     $this->game->pass();
     self::ajaxResponse();
   }
+
+  private function getArrayArgs(string $name) {
+    $args = self::getArg($name, AT_numberlist, true);
+
+    // Removing last ';' if exists
+    if (substr($args, -1) == ';')
+       $args = substr($args, 0, -1);
+
+    if ($args == '')
+       $args = array();
+    else
+       $args = explode(';', $args);
+
+    return $args;
+ }
 
   /*
     

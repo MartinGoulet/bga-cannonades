@@ -9,6 +9,7 @@ class NotificationManager {
          ["onDrawCards", undefined],
          ["onPlayCard", 750],
          ["onRevealShip", 750],
+         ["onUpdateScore", 10],
          ["playerEliminated", 100],
       ];
 
@@ -38,18 +39,23 @@ class NotificationManager {
       await this.game.getPlayerTable(player_id).hand.addCards(cards, { fromStock: this.game.tableCenter.deck });
    }
 
-   private notif_onPlayCard({ card, player_id }: PlayCard) {
+   private notif_onPlayCard({ card, player_id }: PlayCardArgs) {
       this.game.tableCenter.played_card.addCard(card, {});
    }
 
-   private notif_onRevealShip({ card, player_id }: RevealShip) {
+   private notif_onRevealShip({ card, player_id }: RevealShipArgs) {
       this.game.getPlayerTable(player_id).board.flipCard(card);
    }
 
    private notif_playerEliminated(args: NotifPlayerEliminatedArgs) {
       const player_id = Number(args.who_quits);
       this.game.eliminatePlayer(player_id);
-  }
+   }
+
+   private notif_onUpdateScore({player_id, player_score}: UpdateScoreArgs) {
+      debugger;
+      this.game.scoreCtrl[player_id].toValue(player_score);
+   }
 
    private setupNotifications(notifs: any) {
       notifs.forEach(([eventName, duration]) => {
@@ -83,14 +89,19 @@ interface DrawCardsArgs {
    cards: CannonadesCard[];
 }
 
-interface PlayCard {
+interface PlayCardArgs {
    player_id: number;
    card: CannonadesCard;
 }
 
-interface RevealShip {
+interface RevealShipArgs {
    player_id: number;
    card: CannonadesCard;
+}
+
+interface UpdateScoreArgs {
+   player_id: number;
+   player_score: number;
 }
 
 interface NotifPlayerEliminatedArgs {

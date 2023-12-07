@@ -3,29 +3,16 @@
 @import 'table-center';
 @import 'cards/cards.scss';
 
-// #tables-and-center {
-//     position: relative;
-//     display: flex;
-//     justify-content: center;
-//     align-items: stretch;
-//     gap: 20px;
-//     flex-direction: column;
-//     margin-right: 10px;
-
-//     #tables {
-//       position: relative;
-//       display: flex;
-//       justify-content: center;
-//       align-items: center;
-//       flex-wrap: wrap;
-//       gap: 20px;
-//       flex-direction: column;
-//     }
-//   }
-
 #table {
     padding-top: 40px;
 }
+
+#tables {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+ }
 
 .c-title {
     background-color: white;

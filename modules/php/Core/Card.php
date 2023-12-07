@@ -7,6 +7,12 @@ use Cannonades\Core\Game;
 
 class Card {
 
+    public static function addCardToHand(int $card_id, int $player_id) {
+        $deck = Game::get()->deck;
+        $deck->moveCard($card_id, 'hand', $player_id);
+        return $deck->getCard($card_id);
+    }
+
     public static function addShipToBoard(int $player_id, int $card_id) {
         $deck = Game::get()->deck;
         $card = $deck->getCard($card_id);
@@ -52,7 +58,7 @@ class Card {
 
     static function draw(int $player_id, int $count) {
         $deck = Game::get()->deck;
-        return $deck->pickCards($count, 'deck', $player_id);
+        return $deck->pickCards($count, 'deck', $player_id) ?? [];
     }
 
     static function get($card_id) {
@@ -70,6 +76,11 @@ class Card {
         }, $cards);
 
         return $cards;
+    }
+
+    static function getCards($card_ids) {
+        $deck = Game::get()->deck;
+        return $deck->getCards($card_ids);
     }
 
     static function getHand($player_id, $is_current_player) {
