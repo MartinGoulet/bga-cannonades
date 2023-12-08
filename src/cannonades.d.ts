@@ -16,6 +16,8 @@ interface CannonadesGamedatas extends BgaGamedatas {
 
     deck_count: number;
     discard: CannonadesCard[];
+
+    is_standoff: boolean;
 }
 
 type ShipType = {

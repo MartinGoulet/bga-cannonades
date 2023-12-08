@@ -1394,7 +1394,7 @@ var NotificationManager = (function () {
             ["playerEliminated", 100],
         ];
         this.setupNotifications(notifs);
-        ["message"].forEach(function (eventName) {
+        ["message", "onDrawCards"].forEach(function (eventName) {
             _this.game.notifqueue.setIgnoreNotificationCheck(eventName, function (notif) { return notif.args.excluded_player_id && notif.args.excluded_player_id == _this.game.player_id; });
         });
     };
@@ -1446,7 +1446,6 @@ var NotificationManager = (function () {
     };
     NotificationManager.prototype.notif_onUpdateScore = function (_a) {
         var player_id = _a.player_id, player_score = _a.player_score;
-        debugger;
         this.game.scoreCtrl[player_id].toValue(player_score);
     };
     NotificationManager.prototype.setupNotifications = function (notifs) {
@@ -1833,6 +1832,9 @@ var PlayerTurnStandoffState = (function () {
     }
     PlayerTurnStandoffState.prototype.onEnteringState = function (args) {
         var _this = this;
+        this.game.displayStandoff();
+        if (!this.game.isCurrentPlayerActive())
+            return;
         var discard = this.game.tableCenter.discard_faceup;
         this.game.tableCenter.displayDiscard(true);
         var handleSelectionChange = function (selection) {
@@ -1851,8 +1853,8 @@ var PlayerTurnStandoffState = (function () {
     PlayerTurnStandoffState.prototype.onUpdateActionButtons = function (args) {
         var _this = this;
         var handleConfirm = function () {
-            var hand = _this.game.getCurrentPlayerTable().hand;
-            var cards = hand.getSelection();
+            var discard = _this.game.tableCenter.discard_faceup;
+            var cards = discard.getSelection();
             if (cards.length !== 1)
                 return;
             _this.game.takeAction("standoff", { card_id: Number(cards[0].id) });
@@ -1870,14 +1872,16 @@ var VendettaState = (function () {
     VendettaState.prototype.onLeavingState = function () { };
     VendettaState.prototype.onUpdateActionButtons = function (args) {
         console.log(args);
-        this.addButtonDraw();
+        this.addButtonDraw(args);
         this.addButtonDiscard(args);
         this.addButtonFlip(args);
     };
-    VendettaState.prototype.addButtonDraw = function () {
+    VendettaState.prototype.addButtonDraw = function (_a) {
         var _this = this;
+        var deck_count = _a.deck_count;
         var handleDraw = function () { return _this.game.takeAction("vendettaDrawCard"); };
         this.game.addPrimaryActionButton("btn_draw", _("Draw a card"), handleDraw);
+        this.game.toggleButton('btn_draw', deck_count > 0);
     };
     VendettaState.prototype.addButtonDiscard = function (_a) {
         var _this = this;
@@ -1948,6 +1952,9 @@ var Cannonades = (function () {
     function Cannonades() {
     }
     Cannonades.prototype.setup = function (gamedatas) {
+        var maintitlebar = document.getElementById("maintitlebar_content");
+        maintitlebar.insertAdjacentHTML("beforeend", "<div id='customActions'></div>");
+        maintitlebar.insertAdjacentHTML("beforeend", "<div id='standoff'>".concat(_('Standoff'), "</div>"));
         this.stateManager = new StateManager(this);
         this.cardManager = new CannonadesCardManager(this, 'card');
         this.discardManager = new CannonadesCardManager(this, 'discard-card');
@@ -1955,7 +1962,9 @@ var Cannonades = (function () {
         this.tableCenter = new TableCenter(this);
         this.createPlayerTables(gamedatas);
         this.setupNotifications();
-        document.getElementById("maintitlebar_content").insertAdjacentHTML("beforeend", "<div id='customActions'></div>");
+        if (gamedatas.is_standoff) {
+            this.displayStandoff();
+        }
     };
     Cannonades.prototype.onEnteringState = function (stateName, args) {
         this.stateManager.onEnteringState(stateName, args);
@@ -2007,6 +2016,9 @@ var Cannonades = (function () {
             _this.restoreGameState();
         };
         this.addSecondaryActionButton("btnCancelAction", _("Cancel"), handleCancel);
+    };
+    Cannonades.prototype.displayStandoff = function () {
+        document.getElementsByTagName('body')[0].dataset.standoff = "true";
     };
     Cannonades.prototype.eliminatePlayer = function (player_id) {
         this.gamedatas.players[player_id].eliminated = 1;

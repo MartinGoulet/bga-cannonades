@@ -4,14 +4,15 @@ class VendettaState implements StateHandler {
    onLeavingState(): void {}
    onUpdateActionButtons(args: VendettaArgs): void {
       console.log(args);
-      this.addButtonDraw();
+      this.addButtonDraw(args);
       this.addButtonDiscard(args);
       this.addButtonFlip(args);
    }
 
-   private addButtonDraw() {
+   private addButtonDraw({ deck_count }: VendettaArgs) {
       const handleDraw = () => this.game.takeAction("vendettaDrawCard");
       this.game.addPrimaryActionButton("btn_draw", _("Draw a card"), handleDraw);
+      this.game.toggleButton('btn_draw', deck_count > 0);
    }
 
    private addButtonDiscard({ player_name, player_hand_count }: VendettaArgs) {
@@ -55,4 +56,5 @@ interface VendettaArgs {
    player_name: string;
    player_hand_count: number;
    hidden_ships: string[];
+   deck_count: number;
 }

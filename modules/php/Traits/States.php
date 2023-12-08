@@ -17,8 +17,10 @@ trait States {
 
     function stDraw() {
         $player_id = intval(Game::get()->getActivePlayerId());
+        Notifications::startTurn($player_id);
 
         Globals::setActionsRemaining(4);
+        Notifications::actionsRemaining($player_id, 4);
         Globals::setPlayerTurn($player_id);
         Globals::setVendetta([]);
         Game::get()->incStat(1, STAT_TURN_NUMBER);
@@ -31,9 +33,10 @@ trait States {
                 $cards = Card::draw($player_id, $nbr);
                 Notifications::onDrawCards($player_id, $cards);
 
-                if (count($cards) !== $nbr) {
+                if (Card::countCardInDeck() == 0) {
                     Globals::setPlayerStandoff($player_id);
                     Globals::setActionsRemaining(0);
+                    Globals::setVendetta([]);
                     Game::get()->gamestate->nextState('standoff');
                     return;
                 }
@@ -60,9 +63,13 @@ trait States {
         } else if (Player::getRemainingPlayers() <= 1) {
             Game::get()->gamestate->nextState('end');
         } else if ($count_vendetta > 0) {
+            $vendetta = Globals::getVendetta();
+            $info = array_shift($vendetta);
+            Notifications::startVendetta($info['player_id'], $info['from_player_id']);
             Game::get()->gamestate->nextState('vendetta');
         } else if ($count_actions > 1) {
             Globals::setActionsRemaining($count_actions - 1);
+            Notifications::actionsRemaining($player_id, $count_actions - 1);
             Game::get()->gamestate->nextState('next');
         } else if (Card::countCardInHand($player_id) > Player::getRemainingPlayers() + 1) {
             Game::get()->gamestate->nextState('discard');
@@ -102,6 +109,7 @@ trait States {
                 Game::get()->giveExtraTime($current_player_id);
                 Game::get()->gamestate->changeActivePlayer($next_player);
             }
+            Notifications::startVendetta($info['player_id'], $info['from_player_id']);
             Game::get()->gamestate->nextState('next');
         } else {
             Game::get()->giveExtraTime($current_player_id);
@@ -117,9 +125,9 @@ trait States {
                 $ships = array_values(Card::getBoard($player_id));
                 $ships = array_filter($ships, fn ($card) => !array_key_exists('type_arg', $card));
 
-                foreach ($ships as $ship_id) {
-                    Globals::addDamagedShips(intval($ship_id));
-                    $ship = Card::get($ship_id);
+                foreach ($ships as $ship) {
+                    Globals::addDamagedShips(intval($ship['id']));
+                    $ship = Card::get($ship['id']);
                     Notifications::revealShip($ship);
                 }
 

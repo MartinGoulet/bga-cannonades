@@ -7,7 +7,7 @@ class TableCenter {
    constructor(private game: Cannonades) {
       this.setupDeck(game);
       this.setupDiscard(game);
-      this.setupPlayedCard(game);
+      this.setupPlayedCard(game)
    }
 
    public displayDiscard(visible: boolean) {
@@ -65,4 +65,5 @@ class TableCenter {
    private setupPlayedCard(game: Cannonades) {
       this.played_card = new LineStock<CannonadesCard>(game.cardManager, document.getElementById("played-card"));
    }
+
 }

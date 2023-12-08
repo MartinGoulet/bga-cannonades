@@ -295,6 +295,9 @@ body > .card {
   border: 1px solid black;
   border-radius: 5px;
 }
+#decks .deck[data-empty=true] .eye-icon {
+  display: none !important;
+}
 #decks .deck .discard {
   cursor: zoom-in;
   position: absolute;
@@ -473,6 +476,7 @@ body > .card {
   gap: 20px;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .c-title {
@@ -502,4 +506,18 @@ body > .card {
 .card-tooltip table td {
   padding: auto 10px;
   text-align: center;
+}
+
+#standoff {
+  display: none;
+  background-color: black;
+  color: red;
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 -5px -5px;
+  padding: 10px;
+}
+
+[data-standoff=true] #standoff {
+  display: block;
 }

@@ -15,7 +15,7 @@ class NotificationManager {
 
       this.setupNotifications(notifs);
 
-      ["message"].forEach((eventName) => {
+      ["message", "onDrawCards"].forEach((eventName) => {
          this.game.notifqueue.setIgnoreNotificationCheck(
             eventName,
             (notif) => notif.args.excluded_player_id && notif.args.excluded_player_id == this.game.player_id
@@ -53,7 +53,6 @@ class NotificationManager {
    }
 
    private notif_onUpdateScore({player_id, player_score}: UpdateScoreArgs) {
-      debugger;
       this.game.scoreCtrl[player_id].toValue(player_score);
    }
 

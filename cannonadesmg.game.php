@@ -18,6 +18,7 @@
  */
 
 use Cannonades\Core\Card;
+use Cannonades\Core\Globals;
 
 $swdNamespaceAutoload = function ($class) {
     $classParts = explode('\\', $class);
@@ -168,6 +169,7 @@ class cannonadesmg extends Table {
             ];
         }
         $result['players_info'] = $players_info;
+        $result['is_standoff'] = Globals::getPlayerStandoff() !== 0;
 
         // $result['debug'] = self::getCollectionFromDB('SELECT * FROM card');
         $result['debug'] = self::getCollectionFromDB('SELECT * FROM global_variables');

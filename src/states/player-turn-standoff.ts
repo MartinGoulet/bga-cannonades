@@ -2,6 +2,9 @@ class PlayerTurnStandoffState implements StateHandler {
    constructor(private game: Cannonades) {}
 
    onEnteringState(args: any): void {
+      this.game.displayStandoff();
+      if (!this.game.isCurrentPlayerActive()) return;
+
       const { discard_faceup: discard } = this.game.tableCenter;
       this.game.tableCenter.displayDiscard(true);
 
@@ -23,8 +26,8 @@ class PlayerTurnStandoffState implements StateHandler {
 
    onUpdateActionButtons(args: any): void {
       const handleConfirm = () => {
-         const { hand } = this.game.getCurrentPlayerTable();
-         const cards = hand.getSelection();
+         const { discard_faceup: discard } = this.game.tableCenter;
+         const cards = discard.getSelection();
          if (cards.length !== 1) return;
          this.game.takeAction("standoff", { card_id: Number(cards[0].id) });
       };

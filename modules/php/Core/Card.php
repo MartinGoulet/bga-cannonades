@@ -39,6 +39,11 @@ class Card {
         return $deck->countCardInLocation('board', $player_id);
     }
 
+    static function countCardInDeck() {
+        $deck = Game::get()->deck;
+        return $deck->countCardInLocation('deck');
+    }
+
     static function countCardInHand(int $player_id) {
         $deck = Game::get()->deck;
         return $deck->countCardInLocation('hand', $player_id);

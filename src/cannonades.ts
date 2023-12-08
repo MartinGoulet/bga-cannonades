@@ -8,6 +8,10 @@ class Cannonades implements ebg.core.gamegui {
    public gamedatas: CannonadesGamedatas;
 
    public setup(gamedatas: CannonadesGamedatas) {
+      const maintitlebar = document.getElementById("maintitlebar_content");
+      maintitlebar.insertAdjacentHTML("beforeend", "<div id='customActions'></div>");
+      maintitlebar.insertAdjacentHTML("beforeend", `<div id='standoff'>${_('Standoff')}</div>`);
+
       this.stateManager = new StateManager(this);
       this.cardManager = new CannonadesCardManager(this, 'card');
       this.discardManager = new CannonadesCardManager(this, 'discard-card');
@@ -15,7 +19,10 @@ class Cannonades implements ebg.core.gamegui {
       this.tableCenter = new TableCenter(this);
       this.createPlayerTables(gamedatas);
       this.setupNotifications();
-      document.getElementById("maintitlebar_content").insertAdjacentHTML("beforeend", "<div id='customActions'></div>");
+
+      if(gamedatas.is_standoff) {
+         this.displayStandoff();
+      }
    }
    public onEnteringState(stateName: string, args: any) {
       this.stateManager.onEnteringState(stateName, args);
@@ -67,6 +74,10 @@ class Cannonades implements ebg.core.gamegui {
          this.restoreGameState();
       };
       this.addSecondaryActionButton("btnCancelAction", _("Cancel"), handleCancel);
+   }
+
+   public displayStandoff() {
+      document.getElementsByTagName('body')[0].dataset.standoff = "true";
    }
 
    public eliminatePlayer(player_id: number) {

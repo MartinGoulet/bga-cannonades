@@ -97,7 +97,8 @@ $gameEngineState = [
             "pass"
         ],
         "transitions" => [
-            "" => ST_PLAYER_NEXT_ACTION,
+            "next" => ST_PLAYER_NEXT_ACTION,
+            "standoff" => ST_PLAYER_STANDOFF,
         ],
     ],
 
@@ -159,7 +160,8 @@ $vendettaStates = [
             "vendettaFlipShip",
         ],
         "transitions" => [
-            "" => ST_VENDETTA_NEXT,
+            "next" => ST_VENDETTA_NEXT,
+            "standoff" => ST_PLAYER_STANDOFF,
         ],
     ],
 
@@ -169,7 +171,7 @@ $vendettaStates = [
         "action" => "stVendettaNext",
         "transitions" => [
             "next" => ST_VENDETTA,
-            "end" => ST_PLAYER_TURN,
+            "end" => ST_PLAYER_NEXT_ACTION,
         ],
     ],
 ];
@@ -179,13 +181,13 @@ $standoffStates = [
         "name" => "playerTurnStandoff",
         "description" => clienttranslate('${actplayer} must pick a cannonade from the discard'),
         "descriptionmyturn" => clienttranslate('${you} must pick a cannonade from the discard'),
-        "args" => "argPlayerTurnStandoff",
         "type" => "activeplayer",
         "possibleactions" => [
             "standoff",
         ],
         "transitions" => [
-            "" => ST_PLAYER_TURN,
+            "current" => ST_PLAYER_TURN,
+            "next" => ST_PLAYER_TURN_NEXT,
         ],
     ],
 ];

@@ -2,6 +2,7 @@
 
 namespace Cannonades\Traits;
 
+use BgaUserException;
 use Cannonades\Core\Card;
 use Cannonades\Core\Game;
 use Cannonades\Core\Globals;
@@ -23,7 +24,7 @@ trait Actions {
         $player_id = intval(Game::get()->getActivePlayerId());
         Card::addShipToBoard($player_id, $card_id);
         Notifications::addShip($player_id, $card_id);
-        Game::get()->gamestate->nextState();
+        Game::get()->gamestate->nextState('next');
     }
 
     function discardCard(int $card_id) {
@@ -40,7 +41,15 @@ trait Actions {
         $cards = Card::draw($player_id, $nbr);
         Notifications::onDrawCards($player_id, $cards);
 
-        Game::get()->gamestate->nextState();
+        if (Card::countCardInDeck() == 0) {
+            Globals::setPlayerStandoff($player_id);
+            Globals::setActionsRemaining(0);
+            Globals::setVendetta([]);
+            Game::get()->gamestate->nextState('standoff');
+            return;
+        }
+
+        Game::get()->gamestate->nextState('next');
     }
 
     function shootCannonade(int $card_id, int $ship_id) {
@@ -55,7 +64,8 @@ trait Actions {
         }
 
         Notifications::playCard($cannonade);
-        if (!in_array($ship_id, Globals::getDamagedShips())) {
+        $is_ship_revealed = in_array($ship_id, Globals::getDamagedShips());
+        if (!$is_ship_revealed) {
             Notifications::revealShip($ship);
         }
 
@@ -91,13 +101,14 @@ trait Actions {
                 $cards = Card::draw($current_player_id, 1);
                 Notifications::onDrawCards($current_player_id, $cards);
             }
-        } else {
-            for ($i = 0; $i < $ship_type['captain']; $i++) {
-                Globals::addVendetta($player_id, $current_player_id);
-            }
+        } else if ($ship_type['captain'] == 1) {
+            if ($is_ship_sunk)  Globals::addVendetta($player_id, $current_player_id);
+        } else if ($ship_type['captain'] == 2) {
+            if ($is_ship_sunk)  Globals::addVendetta($player_id, $current_player_id);
+            if (!$is_ship_revealed)  Globals::addVendetta($player_id, $current_player_id);
         }
 
-        Game::get()->gamestate->nextState();
+        Game::get()->gamestate->nextState('next');
     }
 
     function boardShip(int $card_id, int $ship_id) {
@@ -106,14 +117,24 @@ trait Actions {
 
     function pass() {
         Globals::setActionsRemaining(0);
-        Game::get()->gamestate->nextState();
+        Notifications::pass(Game::get()->getCurrentPlayerId());
+        Game::get()->gamestate->nextState('next');
     }
 
     function vendettaDrawCard() {
         $player_id = intval(Game::get()->getActivePlayerId());
         $cards = Card::draw($player_id, 1);
         Notifications::onDrawCards($player_id, $cards);
-        Game::get()->gamestate->nextState();
+
+        if (Card::countCardInDeck() == 0) {
+            Globals::setPlayerStandoff($player_id);
+            Globals::setActionsRemaining(0);
+            Globals::setVendetta([]);
+            Game::get()->gamestate->nextState('standoff');
+            return;
+        }
+
+        Game::get()->gamestate->nextState('next');
     }
 
     function vendettaDiscardCard() {
@@ -126,7 +147,7 @@ trait Actions {
 
         Card::discard($card['id']);
         Notifications::discardCard($card);
-        Game::get()->gamestate->nextState();
+        Game::get()->gamestate->nextState('next');
     }
 
     function vendettaFlipShip(int $ship_id) {
@@ -137,11 +158,11 @@ trait Actions {
         $player_id = intval($ship['location_arg']);
         $current_player_id = Game::get()->getCurrentPlayerId();
         $ship_type = Game::get()->ship_types[$ship['type_arg']];
-        for ($i = 0; $i < $ship_type['captain']; $i++) {
+        if($ship_type['captain'] == 2) {
             Globals::addVendetta($player_id, $current_player_id);
         }
 
-        Game::get()->gamestate->nextState();
+        Game::get()->gamestate->nextState('next');
     }
 
     function discard(array $card_ids) {
@@ -156,6 +177,8 @@ trait Actions {
         $player_id = Game::get()->getCurrentPlayerId();
         $card = Card::addCardToHand($card_id, $player_id);
         Notifications::onDrawCards($player_id, [$card]);
-        Game::get()->gamestate->nextState();
+
+        $next_state = Globals::getActionsRemaining() == 0 ? "next" : "current";
+        Game::get()->gamestate->nextState($next_state);
     }
 }

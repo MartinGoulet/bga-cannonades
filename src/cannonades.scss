@@ -12,6 +12,7 @@
     gap: 20px;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: flex-start;
  }
 
 .c-title {
@@ -46,5 +47,20 @@
             padding: auto 10px;
             text-align: center;
         }
+    }
+}
+
+#standoff {
+    display: none;
+    background-color: black;
+    color: red;
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0 -5px -5px;
+    padding: 10px;
+}
+[data-standoff="true"] {
+    #standoff {
+        display: block;
     }
 }

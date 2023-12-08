@@ -50,6 +50,7 @@ trait Args {
             'player_hand_count' => Card::countCardInHand($player_id),
             'hidden_ships' => array_column($ships, 'id'),
             'ships' => $ships,
+            'deck_count' => Card::countCardInDeck(),
         ];
     }
 }

@@ -2,7 +2,18 @@
 
 namespace Cannonades\Core;
 
+use BgaUserException;
+
 class Notifications extends \APP_DbObject {
+
+    public static function actionsRemaining($player_id, $count) {
+        $message = clienttranslate('${player_name} has ${count} actions remaining');
+        self::message($message, [
+            'player_id' => $player_id,
+            'player_name' => self::getPlayerName($player_id),
+            'count' => $count,
+        ]);
+    }
 
     public static function addShip(int $player_id, int $card_id) {
         $message = clienttranslate('${player_name} add a ship on his board');
@@ -51,9 +62,17 @@ class Notifications extends \APP_DbObject {
         ];
         $message = clienttranslate('${player_name} draws ${nbr_cards}');
         self::notify($player_id, 'onDrawCards', $message, $args);
-        
+
         $args['cards'] = Card::anonymizeCards($cards);
         self::notifyAll('onDrawCards', $message, $args, $player_id);
+    }
+
+    public static function pass($player_id) {
+        $message = clienttranslate('${player_name} decides to pass');
+        self::message($message, [
+            'player_id' => $player_id,
+            'player_name' => self::getPlayerName($player_id),
+        ]);
     }
 
     public static function playCard(array $card) {
@@ -73,6 +92,24 @@ class Notifications extends \APP_DbObject {
             'player_id' => $player_id,
             'player_name' => self::getPlayerName($player_id),
             'card' => $ship,
+        ]);
+    }
+
+    static function startTurn($player_id) {
+        $message = clienttranslate('${player_name} starts is turn');
+        self::message($message, [
+            'player_id' => $player_id,
+            'player_name' => self::getPlayerName($player_id),
+        ]);
+    }
+
+    static function startVendetta($player_id, $player_id2) {
+        $message = clienttranslate('${player_name} starts a vendetta agains\'t ${player_name2}');
+        self::message($message, [
+            'player_id' => $player_id,
+            'player_name' => self::getPlayerName($player_id),
+            'player_id2' => $player_id2,
+            'player_name2' => self::getPlayerName($player_id2),
         ]);
     }
 
@@ -107,6 +144,10 @@ class Notifications extends \APP_DbObject {
     }
 
     private static function getPlayerName(int $player_id) {
-        return Game::get()->getPlayerNameById($player_id);
+        $player_name = Game::get()->getPlayerNameById($player_id);
+        if($player_name == "" || $player_name == null) {
+            throw new BgaUserException("Null player name");
+        }
+        return $player_name;
     }
 }

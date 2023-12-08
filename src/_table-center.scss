@@ -20,6 +20,10 @@
         &[data-empty="true"] {
             border: 1px solid black;
             border-radius: 5px;
+
+            .eye-icon {
+                display: none !important;
+            }
         }
 
         .discard {
@@ -28,6 +32,8 @@
             right: 10px;
             top: 25px;
             z-index: 5;
+
+           
 
             &.eye-icon {
                 width: 34px;
