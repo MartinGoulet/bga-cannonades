@@ -13,7 +13,7 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: flex-start;
- }
+}
 
 .c-title {
     background-color: white;
@@ -38,6 +38,7 @@
         tr {
             line-height: 20px;
         }
+
         th {
             font-weight: 600;
             padding-right: 10px;
@@ -59,8 +60,12 @@
     margin: 0 -5px -5px;
     padding: 10px;
 }
-[data-standoff="true"] {
-    #standoff {
-        display: block;
-    }
+
+
+[data-standoff="true"] #standoff {
+    display: block;
+}
+
+.gamestate_gameEnd #standoff {
+    display: none !important;
 }

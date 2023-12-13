@@ -43,11 +43,22 @@ trait States {
             }
             Game::get()->gamestate->nextState('next');
         } else {
-            Game::get()->gamestate->nextState('standoff');
+            if ($player_id === Globals::getPlayerStandoff()) {
+                Globals::setLastTurn(true);
+                Game::get()->gamestate->nextState('next');
+            } else {
+                Game::get()->gamestate->nextState('standoff');
+            }
         }
     }
 
     function stPlayerNextAction() {
+
+        if (globals::isLastTurn()) {
+            Game::get()->gamestate->nextState('end');
+            return;
+        }
+
         $player_id = intval(Game::get()->getActivePlayerId());
         $count_actions = Globals::getActionsRemaining();
         $count_vendetta = count(Globals::getVendetta());
@@ -57,7 +68,7 @@ trait States {
                 Game::get()->gamestate->nextState('next_player');
                 Game::eliminatePlayer($player_id);
             } else {
-                Game::eliminatePlayer($player_id);
+                Game::eliminatePlayer($player_id, false);
                 Game::get()->gamestate->nextState('end');
             }
         } else if (Player::getRemainingPlayers() <= 1) {
@@ -71,7 +82,7 @@ trait States {
             Globals::setActionsRemaining($count_actions - 1);
             Notifications::actionsRemaining($player_id, $count_actions - 1);
             Game::get()->gamestate->nextState('next');
-        } else if (Card::countCardInHand($player_id) > Player::getRemainingPlayers() + 1) {
+        } else if (Card::countCardInHand($player_id) > Game::getMaxNumberOfCardInHand()) {
             Game::get()->gamestate->nextState('discard');
         } else {
             Game::get()->gamestate->nextState('next_player');
@@ -135,12 +146,12 @@ trait States {
 
                 $score_aux =
                     1000 * count($ships) +
-                    100 * $this->countIcons($ships) +
-                    10 * $this->maxSails($ships) +
+                    100 *  $this->maxSails($ships) +
+                    10 * Card::countCardInHand($player_id) +
                     1 * ($player_id == Globals::getPlayerStandoff() ? 1 : 0);
 
-                Player::updateScore($player_id, $score_aux);
-                Notifications::updateScore($player_id, 1);
+                Player::updateScore($player_id, count($ships), $score_aux);
+                Notifications::updateScore($player_id, count($ships));
             }
         }
         Game::get()->gamestate->nextState();

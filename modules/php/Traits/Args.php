@@ -33,7 +33,7 @@ trait Args {
         $count = Card::countCardInHand($player_id);
         $nbrRemainingPlayers = Player::getRemainingPlayers();
         return [
-            'nbr' => $count - ($nbrRemainingPlayers + 1),
+            'nbr' => $count - Game::getMaxNumberOfCardInHand(),
         ];
     }
 

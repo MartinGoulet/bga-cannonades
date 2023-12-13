@@ -40,6 +40,14 @@ class Globals extends \APP_DbObject {
         self::set('player_turn', $player_id);
     }
 
+    public static function isLastTurn() {
+        return boolval(self::get('last_turn') ?? false);
+    }
+
+    public static function setLastTurn(bool $value) {
+        self::set('last_turn', $value);
+    }
+
     public static function getPlayerStandoff() {
         return intval(self::get('player_standoff'));
     }

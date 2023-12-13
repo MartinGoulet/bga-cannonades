@@ -521,3 +521,7 @@ body > .card {
 [data-standoff=true] #standoff {
   display: block;
 }
+
+.gamestate_gameEnd #standoff {
+  display: none !important;
+}

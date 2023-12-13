@@ -13,8 +13,8 @@ class Player extends \APP_DbObject  {
         return intval(self::getUniqueValueFromDB($sql)) !== 0;
     }
 
-    static function updateScore(int $player_id, $score) {
-        $sql = "UPDATE player SET player_score = 1, player_score_aux = $score WHERE player_id = $player_id";
+    static function updateScore(int $player_id,int $score, int $score_aux) {
+        $sql = "UPDATE player SET player_score = $score, player_score_aux = $score_aux WHERE player_id = $player_id";
         self::DbQuery($sql);
     }
 }

@@ -71,6 +71,7 @@ class cannonadesmg extends Table {
             //    "my_first_game_variant" => 100,
             //    "my_second_game_variant" => 101,
             //      ...
+            GAME_OPTION_VARIANT => GAME_OPTION_VARIANT_ID,
         ));
         
         $this->deck = self::getNew("module.common.deck");

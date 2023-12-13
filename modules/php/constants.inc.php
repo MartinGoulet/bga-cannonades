@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * Game Options
+ */
+
+const GAME_OPTION_VARIANT_ID = 100;
+const GAME_OPTION_VARIANT = 'gameOptionMaxCardHand';
+const GAME_OPTION_VARIANT_NBR_PLAYERS_PLUS_1 = 1;
+const GAME_OPTION_VARIANT_FIX_5_CARDS = 2;
+
+
+/**
  * States
  */
 const ST_BGA_GAME_SETUP = 1;
