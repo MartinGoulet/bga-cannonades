@@ -4,7 +4,7 @@ namespace Cannonades\Core;
 
 class Game {
     public static function get() {
-        return \cannonadesmg::get();
+        return \cannonades::get();
     }
 
     public static function eliminatePlayer($player_id, $eliminate = true) {

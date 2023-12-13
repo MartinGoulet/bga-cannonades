@@ -5,7 +5,7 @@
   "main": "cannonadesmg.js",
   "scripts": {
     "build:ts": "tsc",
-    "build:scss": "sass --no-source-map src/cannonades.scss cannonadesmg.css"
+    "build:scss": "sass --no-source-map src/cannonades.scss cannonades.css"
   },
   "keywords": [],
   "author": "",

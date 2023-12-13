@@ -3,20 +3,20 @@
 abstract class APP_GameAction extends APP_Action
 {
     /**
-     * @var \cannonadesmg
+     * @var \cannonades
      */
     protected $game;
 
     /**
-     * @param \cannonadesmg $game
+     * @param \cannonades $game
      */
-    public function stubGame(\cannonadesmg $game)
+    public function stubGame(\cannonades $game)
     {
         $this->game = $game;
     }
 
     /**
-     * @return \cannonadesmg
+     * @return \cannonades
      */
     public function getGame()
     {

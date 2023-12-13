@@ -3,13 +3,13 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * cannonadesmg implementation : © <Your name here> <Your email address here>
+ * cannonades implementation : © <Your name here> <Your email address here>
  * 
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  * 
- * cannonadesmg.game.php
+ * cannonades.game.php
  *
  * This is the main file for your game logic.
  *
@@ -37,7 +37,7 @@ spl_autoload_register($swdNamespaceAutoload, true, true);
 require_once(APP_GAMEMODULE_PATH . 'module/table/table.game.php');
 require_once('modules/php/constants.inc.php');
 
-class cannonadesmg extends Table {
+class cannonades extends Table {
     use Cannonades\Traits\Actions;
     use Cannonades\Traits\Args;
     use Cannonades\Traits\Debug;
@@ -52,7 +52,7 @@ class cannonadesmg extends Table {
     /** @var Deck */
     public $deck;
 
-    /** @var cannonadesmg */
+    /** @var cannonades */
     public static $instance = null;
 
     function __construct() {
@@ -86,7 +86,7 @@ class cannonadesmg extends Table {
 
     protected function getGameName() {
         // Used for translations and stuff. Please do not modify.
-        return "cannonadesmg";
+        return "cannonades";
     }
 
     /*
@@ -211,7 +211,7 @@ class cannonadesmg extends Table {
 
     /*
         Each time a player is doing some game action, one of the methods below is called.
-        (note: each method below must match an input method in cannonadesmg.action.php)
+        (note: each method below must match an input method in cannonades.action.php)
     */
 
     /*
