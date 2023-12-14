@@ -3,6 +3,12 @@
 @import 'table-center';
 @import 'cards/cards.scss';
 
+html, .mode_3d #game_play_area_background {
+   background: url("img/background.jpg");
+   background-size: 100% auto;
+   background-repeat: repeat;
+}
+
 #table {
     padding-top: 40px;
 }

@@ -248,6 +248,7 @@ body > .card {
   border-radius: 8px;
   padding-top: 30px;
   position: relative;
+  background: rgba(255, 255, 255, 0.2666666667);
 }
 .player-table .c-title {
   color: var(--player-color);
@@ -465,6 +466,12 @@ body > .card {
   --card-overlap: 50px !important;
   --card-shift: 4px !important;
   --card-inclination: 4deg !important;
+}
+
+html, .mode_3d #game_play_area_background {
+  background: url("img/background.jpg");
+  background-size: 100% auto;
+  background-repeat: repeat;
 }
 
 #table {
