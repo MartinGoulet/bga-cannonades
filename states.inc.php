@@ -162,6 +162,7 @@ $vendettaStates = [
         "transitions" => [
             "next" => ST_VENDETTA_NEXT,
             "standoff" => ST_PLAYER_STANDOFF,
+            "discard" => ST_PRE_VENDETTA_DISCARD_CARD,
         ],
     ],
 
@@ -172,6 +173,26 @@ $vendettaStates = [
         "transitions" => [
             "next" => ST_VENDETTA,
             "end" => ST_PLAYER_NEXT_ACTION,
+        ],
+    ],
+
+    ST_PRE_VENDETTA_DISCARD_CARD => [
+        "name" => "preVendettaDiscardCard",
+        "type" => "game",
+        "action" => "stPreVendettaDiscardCard",
+        "transitions" => [
+            '' => ST_VENDETTA_DISCARD_CARD,
+        ],
+    ],
+
+    ST_VENDETTA_DISCARD_CARD => [
+        "name" => "vendettaDiscardCard",
+        "description" => clienttranslate('${actplayer} must select a card to discard'),
+        "descriptionmyturn" => clienttranslate('${you} must select a card to discard'),
+        "type" => "activeplayer",
+        "possibleactions" => ['discardCardForVendetta'],
+        "transitions" => [
+            '' => ST_VENDETTA_NEXT,
         ],
     ],
 ];
@@ -203,4 +224,8 @@ $scoringStates = [
     ],
 ];
 
-$machinestates = $basicGameStates + $gameEngineState + $vendettaStates + $standoffStates + $scoringStates;
+$machinestates = $basicGameStates + $gameEngineState + $vendettaStates + $standoffStates + $scoringStates + [
+    
+
+    
+];

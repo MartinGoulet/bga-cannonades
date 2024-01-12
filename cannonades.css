@@ -243,7 +243,7 @@ body > .card {
   --card-width: 100px;
   --card-height: 137px;
   width: 700px;
-  min-height: 360px;
+  min-height: 320px;
   border: 3px solid var(--player-color);
   border-radius: 8px;
   padding-top: 30px;
@@ -257,7 +257,6 @@ body > .card {
 }
 .player-table .line-stock {
   min-height: var(--card-height);
-  padding: 20px 0;
 }
 .player-table .hand-stock {
   padding: 20px 0;
@@ -468,6 +467,13 @@ body > .card {
   --card-inclination: 4deg !important;
 }
 
+.log .card-log {
+  --card-width: 100px;
+  --card-height: 137px;
+  display: block;
+  margin: 10px auto;
+}
+
 html, .mode_3d #game_play_area_background {
   background: url("img/background.jpg");
   background-size: 100% auto;
@@ -480,7 +486,7 @@ html, .mode_3d #game_play_area_background {
 
 #tables {
   display: flex;
-  gap: 20px;
+  column-gap: 20px;
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;

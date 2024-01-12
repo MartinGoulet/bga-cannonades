@@ -1,7 +1,8 @@
 @import "../node_modules/bga-cards/bga-cards";
 @import 'player-table';
 @import 'table-center';
-@import 'cards/cards.scss';
+@import 'cards/cards';
+@import 'logs';
 
 html, .mode_3d #game_play_area_background {
    background: url("img/background.jpg");
@@ -15,7 +16,7 @@ html, .mode_3d #game_play_area_background {
 
 #tables {
     display: flex;
-    gap: 20px;
+    column-gap: 20px;
     flex-wrap: wrap;
     justify-content: center;
     align-items: flex-start;

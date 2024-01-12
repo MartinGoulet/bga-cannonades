@@ -2,7 +2,7 @@
   "name": "bga-cannonades",
   "version": "1.0.0",
   "description": "",
-  "main": "cannonadesmg.js",
+  "main": "cannonades.js",
   "scripts": {
     "build:ts": "tsc",
     "build:scss": "sass --no-source-map src/cannonades.scss cannonades.css"

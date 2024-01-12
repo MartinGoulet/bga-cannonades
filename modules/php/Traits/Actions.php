@@ -138,16 +138,7 @@ trait Actions {
     }
 
     function vendettaDiscardCard() {
-        $vendettas = Globals::getVendetta();
-        $vendetta = array_shift($vendettas);
-
-        $cards = Card::getHand($vendetta['from_player_id'], true);
-        shuffle($cards);
-        $card = array_shift($cards);
-
-        Card::discard($card['id']);
-        Notifications::discardCard($card);
-        Game::get()->gamestate->nextState('next');
+        Game::get()->gamestate->nextstate('discard');
     }
 
     function vendettaFlipShip(int $ship_id) {
@@ -158,7 +149,7 @@ trait Actions {
         $player_id = intval($ship['location_arg']);
         $current_player_id = Game::get()->getCurrentPlayerId();
         $ship_type = Game::get()->ship_types[$ship['type_arg']];
-        if($ship_type['captain'] == 2) {
+        if ($ship_type['captain'] == 2) {
             Globals::addVendetta($player_id, $current_player_id);
         }
 
@@ -180,5 +171,13 @@ trait Actions {
 
         $next_state = Globals::getActionsRemaining() == 0 ? "next" : "current";
         Game::get()->gamestate->nextState($next_state);
+    }
+
+    public function discardCardForVendetta(int $card_id) {
+        $card = Card::get($card_id);
+        Card::discard($card_id);
+        Notifications::discardCard($card);
+        // Move to next state
+        $this->gamestate->nextState();
     }
 }

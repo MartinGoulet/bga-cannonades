@@ -3,6 +3,7 @@ class StateManager {
 
     constructor(private game: Cannonades) {
         this.states = {
+         vendettaDiscardCard: new VendettaDiscardCardState(game),
             playerTurn: new PlayerTurnState(game),
             playerTurnShoot: new PlayerTurnShootState(game),
             playerTurnBoard: new PlayerTurnShootState(game),
@@ -10,6 +11,7 @@ class StateManager {
             playerTurnStandoff: new PlayerTurnStandoffState(game),
             vendetta: new VendettaState(game),
             vendettaFlip: new VendettaFlipState(game),
+            vendedtaDiscardCard : new VendettaDiscardCardState(game),
         };
     }
 

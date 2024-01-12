@@ -175,4 +175,15 @@ trait States {
         $occurences = reset($counted);
         return $occurences;
     }
+
+    function stPreVendettaDiscardCard() {
+        $vendettas = Globals::getVendetta();
+        $vendetta = array_shift($vendettas);
+        $player_id = intval($vendetta['from_player_id']);
+
+        Game::get()->gamestate->changeActivePlayer($player_id);
+        Game::get()->giveExtraTime($player_id);
+
+        $this->gamestate->nextState();
+    }
 }

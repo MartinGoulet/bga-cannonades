@@ -26,11 +26,12 @@ class Notifications extends \APP_DbObject {
 
     public static function discardCard(array $card) {
         $player_id = intval($card['location_arg']);
-        $message = clienttranslate('${player_name} discards a card');
+        $message = clienttranslate('${player_name} discards a card ${card_image}');
         self::notifyAll("onDiscardCard", $message, [
             'player_id' => $player_id,
             'player_name' => self::getPlayerName($player_id),
             'card' => $card,
+            'card_image' => $card,
         ]);
     }
 
@@ -77,21 +78,23 @@ class Notifications extends \APP_DbObject {
 
     public static function playCard(array $card) {
         $player_id = intval($card['location_arg']);
-        $message = clienttranslate('${player_name} plays a card');
+        $message = clienttranslate('${player_name} plays a card ${card_image}');
         self::notifyAll("onPlayCard", $message, [
             'player_id' => $player_id,
             'player_name' => self::getPlayerName($player_id),
             'card' => $card,
+            'card_image' => $card,
         ]);
     }
 
     static function revealShip($ship) {
         $player_id = intval($ship['location_arg']);
-        $message = clienttranslate('${player_name} reveals a ship');
+        $message = clienttranslate('${player_name} reveals a ship ${card_image}');
         self::notifyAll("onRevealShip", $message, [
             'player_id' => $player_id,
             'player_name' => self::getPlayerName($player_id),
             'card' => $ship,
+            'card_image' => $ship,
         ]);
     }
 

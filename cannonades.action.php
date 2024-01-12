@@ -36,6 +36,19 @@ class action_cannonades extends APP_GameAction {
   }
 
   // TODO: defines your action entry points there
+  public function discardCardForVendetta() {
+    self::setAjaxMode();
+
+    // Retrieve arguments
+    $card_id = self::getArg("card_id", AT_int, true);
+
+    // Then, call the appropriate method in your game logic
+    $this->game->checkAction('discardCardForVendetta');
+    $this->game->discardCardForVendetta($card_id);
+
+    self::ajaxResponse();
+  }
+
 
   public function addShip() {
     self::setAjaxMode();
@@ -129,15 +142,15 @@ class action_cannonades extends APP_GameAction {
 
     // Removing last ';' if exists
     if (substr($args, -1) == ';')
-       $args = substr($args, 0, -1);
+      $args = substr($args, 0, -1);
 
     if ($args == '')
-       $args = array();
+      $args = array();
     else
-       $args = explode(';', $args);
+      $args = explode(';', $args);
 
     return $args;
- }
+  }
 
   /*
     

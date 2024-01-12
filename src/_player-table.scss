@@ -2,7 +2,7 @@
    --card-width: 100px;
    --card-height: 137px;
    width: 700px;
-   min-height: 360px;
+   min-height: 320px;
    border: 3px solid var(--player-color);
    border-radius: 8px;
    padding-top: 30px;
@@ -17,7 +17,6 @@
 
    .line-stock {
       min-height: var(--card-height);
-      padding: 20px 0;
    }
 
    .hand-stock {

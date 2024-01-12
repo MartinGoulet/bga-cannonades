@@ -5,7 +5,7 @@
       "module": "none",
       "lib": ["dom", "esnext"],  
       "sourceMap": false,
-      "outFile": "cannonadesmg.js",
+      "outFile": "cannonades.js",
       "removeComments": true,
       "strict": false,
     },
@@ -36,6 +36,7 @@
         "src/table-center.ts",
 
         "src/states/state-manager.ts",
+        "src/states/vendetta-discard-card.ts",
         "src/states/player-turn.ts",
         "src/states/player-turn-discard.ts",
         "src/states/player-turn-shoot.ts",

@@ -1534,6 +1534,7 @@ var StateManager = (function () {
     function StateManager(game) {
         this.game = game;
         this.states = {
+            vendettaDiscardCard: new VendettaDiscardCardState(game),
             playerTurn: new PlayerTurnState(game),
             playerTurnShoot: new PlayerTurnShootState(game),
             playerTurnBoard: new PlayerTurnShootState(game),
@@ -1541,6 +1542,7 @@ var StateManager = (function () {
             playerTurnStandoff: new PlayerTurnStandoffState(game),
             vendetta: new VendettaState(game),
             vendettaFlip: new VendettaFlipState(game),
+            vendedtaDiscardCard: new VendettaDiscardCardState(game),
         };
     }
     StateManager.prototype.onEnteringState = function (stateName, args) {
@@ -1565,6 +1567,40 @@ var StateManager = (function () {
         }
     };
     return StateManager;
+}());
+var VendettaDiscardCardState = (function () {
+    function VendettaDiscardCardState(game) {
+        this.game = game;
+    }
+    VendettaDiscardCardState.prototype.onEnteringState = function (args) {
+        var _this = this;
+        if (!this.game.isCurrentPlayerActive())
+            return;
+        var hand = this.game.getCurrentPlayerTable().hand;
+        var handleSelectionChange = function (selection) {
+            _this.game.toggleButton("btn_confirm", selection.length === 1);
+        };
+        hand.setSelectionMode("single");
+        hand.onSelectionChange = handleSelectionChange;
+    };
+    VendettaDiscardCardState.prototype.onLeavingState = function () {
+        var hand = this.game.getCurrentPlayerTable().hand;
+        hand.setSelectionMode("none");
+        hand.onSelectionChange = undefined;
+    };
+    VendettaDiscardCardState.prototype.onUpdateActionButtons = function (args) {
+        var _this = this;
+        var hand = this.game.getCurrentPlayerTable().hand;
+        var handleConfirm = function () {
+            var cards = hand.getSelection();
+            if (cards.length !== 1)
+                return;
+            _this.game.takeAction("discardCardForVendetta", { card_id: cards[0].id });
+        };
+        this.game.addPrimaryActionButton("btn_confirm", _("Confirm"), handleConfirm);
+        this.game.toggleButton('btn_confirm', false);
+    };
+    return VendettaDiscardCardState;
 }());
 var PlayerTurnState = (function () {
     function PlayerTurnState(game) {
@@ -1954,10 +1990,10 @@ var Cannonades = (function () {
     Cannonades.prototype.setup = function (gamedatas) {
         var maintitlebar = document.getElementById("maintitlebar_content");
         maintitlebar.insertAdjacentHTML("beforeend", "<div id='customActions'></div>");
-        maintitlebar.insertAdjacentHTML("beforeend", "<div id='standoff'>".concat(_('Standoff'), "</div>"));
+        maintitlebar.insertAdjacentHTML("beforeend", "<div id='standoff'>".concat(_("Standoff"), "</div>"));
         this.stateManager = new StateManager(this);
-        this.cardManager = new CannonadesCardManager(this, 'card');
-        this.discardManager = new CannonadesCardManager(this, 'discard-card');
+        this.cardManager = new CannonadesCardManager(this, "card");
+        this.discardManager = new CannonadesCardManager(this, "discard-card");
         this.notifManager = new NotificationManager(this);
         this.tableCenter = new TableCenter(this);
         this.createPlayerTables(gamedatas);
@@ -1993,19 +2029,19 @@ var Cannonades = (function () {
     Cannonades.prototype.addPrimaryActionButton = function (id, text, callback, zone) {
         if (zone === void 0) { zone = "customActions"; }
         if (!document.getElementById(id)) {
-            this.addActionButton(id, text, callback, null, false, "blue");
+            this.addActionButton(id, text, callback, zone, false, "blue");
         }
     };
     Cannonades.prototype.addSecondaryActionButton = function (id, text, callback, zone) {
         if (zone === void 0) { zone = "customActions"; }
         if (!document.getElementById(id)) {
-            this.addActionButton(id, text, callback, null, false, "gray");
+            this.addActionButton(id, text, callback, zone, false, "gray");
         }
     };
     Cannonades.prototype.addDangerActionButton = function (id, text, callback, zone) {
         if (zone === void 0) { zone = "customActions"; }
         if (!document.getElementById(id)) {
-            this.addActionButton(id, text, callback, null, false, "red");
+            this.addActionButton(id, text, callback, zone, false, "red");
         }
     };
     Cannonades.prototype.addActionButtonClientCancel = function () {
@@ -2018,7 +2054,7 @@ var Cannonades = (function () {
         this.addSecondaryActionButton("btnCancelAction", _("Cancel"), handleCancel);
     };
     Cannonades.prototype.displayStandoff = function () {
-        document.getElementsByTagName('body')[0].dataset.standoff = "true";
+        document.getElementsByTagName("body")[0].dataset.standoff = "true";
     };
     Cannonades.prototype.eliminatePlayer = function (player_id) {
         this.gamedatas.players[player_id].eliminated = 1;
@@ -2056,6 +2092,21 @@ var Cannonades = (function () {
         onSuccess = onSuccess !== null && onSuccess !== void 0 ? onSuccess : function (result) { };
         onComplete = onComplete !== null && onComplete !== void 0 ? onComplete : function (is_error) { };
         this.ajaxcall("/cannonades/cannonades/".concat(action, ".html"), data, this, onSuccess, onComplete);
+    };
+    Cannonades.prototype.format_string_recursive = function (log, args) {
+        try {
+            if (log && args && !args.processed) {
+                args.processed = true;
+                if (args.card_image !== undefined) {
+                    var img_pos = this.cardManager.getImgPos(args.card_image);
+                    args.card_image = "<div class=\"card card-log\">\n                  <div class=\"card-sides\">\n                     <div class=\"card-side front\" data-img=\"".concat(img_pos, "\"></div>\n                  </div>\n               </div>");
+                }
+            }
+        }
+        catch (e) {
+            console.error(log, args, "Exception thrown", e.stack);
+        }
+        return this.inherited(arguments);
     };
     return Cannonades;
 }());

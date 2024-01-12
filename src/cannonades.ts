@@ -10,17 +10,17 @@ class Cannonades implements ebg.core.gamegui {
    public setup(gamedatas: CannonadesGamedatas) {
       const maintitlebar = document.getElementById("maintitlebar_content");
       maintitlebar.insertAdjacentHTML("beforeend", "<div id='customActions'></div>");
-      maintitlebar.insertAdjacentHTML("beforeend", `<div id='standoff'>${_('Standoff')}</div>`);
+      maintitlebar.insertAdjacentHTML("beforeend", `<div id='standoff'>${_("Standoff")}</div>`);
 
       this.stateManager = new StateManager(this);
-      this.cardManager = new CannonadesCardManager(this, 'card');
-      this.discardManager = new CannonadesCardManager(this, 'discard-card');
+      this.cardManager = new CannonadesCardManager(this, "card");
+      this.discardManager = new CannonadesCardManager(this, "discard-card");
       this.notifManager = new NotificationManager(this);
       this.tableCenter = new TableCenter(this);
       this.createPlayerTables(gamedatas);
       this.setupNotifications();
 
-      if(gamedatas.is_standoff) {
+      if (gamedatas.is_standoff) {
          this.displayStandoff();
       }
    }
@@ -51,19 +51,19 @@ class Cannonades implements ebg.core.gamegui {
 
    public addPrimaryActionButton(id, text, callback, zone = "customActions"): void {
       if (!document.getElementById(id)) {
-         this.addActionButton(id, text, callback, null, false, "blue");
+         this.addActionButton(id, text, callback, zone, false, "blue");
       }
    }
 
    public addSecondaryActionButton(id, text, callback, zone = "customActions"): void {
       if (!document.getElementById(id)) {
-         this.addActionButton(id, text, callback, null, false, "gray");
+         this.addActionButton(id, text, callback, zone, false, "gray");
       }
    }
 
    public addDangerActionButton(id, text, callback, zone = "customActions"): void {
       if (!document.getElementById(id)) {
-         this.addActionButton(id, text, callback, null, false, "red");
+         this.addActionButton(id, text, callback, zone, false, "red");
       }
    }
 
@@ -77,7 +77,7 @@ class Cannonades implements ebg.core.gamegui {
    }
 
    public displayStandoff() {
-      document.getElementsByTagName('body')[0].dataset.standoff = "true";
+      document.getElementsByTagName("body")[0].dataset.standoff = "true";
    }
 
    public eliminatePlayer(player_id: number) {
@@ -121,6 +121,31 @@ class Cannonades implements ebg.core.gamegui {
       data.lock = true;
       onSuccess = onSuccess ?? function (result: any) {};
       onComplete = onComplete ?? function (is_error: boolean) {};
-      this.ajaxcall(`/cannonadesmg/cannonadesmg/${action}.html`, data, this, onSuccess, onComplete);
+      this.ajaxcall(`/cannonades/cannonades/${action}.html`, data, this, onSuccess, onComplete);
+   }
+
+   ///////////////////////////////////////////////////
+   //// Logs
+
+   /* @Override */
+   format_string_recursive(log: string, args: any) {
+      try {
+         if (log && args && !args.processed) {
+            args.processed = true;
+
+            if (args.card_image !== undefined) {
+               const img_pos = this.cardManager.getImgPos(args.card_image);
+               args.card_image = `<div class="card card-log">
+                  <div class="card-sides">
+                     <div class="card-side front" data-img="${img_pos}"></div>
+                  </div>
+               </div>`;
+            }
+         }
+      } catch (e) {
+         console.error(log, args, "Exception thrown", e.stack);
+      }
+
+      return this.inherited(arguments);
    }
 }

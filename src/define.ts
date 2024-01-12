@@ -7,5 +7,5 @@ define([
     "ebg/counter",
     "ebg/stock",
 ], function (dojo, declare) {
-    return declare("bgagame.cannonadesmg", [ebg.core.gamegui], new Cannonades());
+    return declare("bgagame.cannonades", [ebg.core.gamegui], new Cannonades());
 });
