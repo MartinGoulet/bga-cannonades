@@ -25,6 +25,7 @@ trait Args {
             'can_add_ship' => Card::countShipOnBoard($player_id) < 4,
             'can_shoot_cannonades' => Game::get()->getStat(STAT_TURN_NUMBER, $player_id) > 1,
             'actions_remaining' => Globals::getActionsRemaining(),
+            'standoff' => Globals::getPlayerStandoff() !== 0,
         ];
     }
 

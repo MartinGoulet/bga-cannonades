@@ -36,6 +36,7 @@
         "src/table-center.ts",
 
         "src/states/state-manager.ts",
+        "src/states/player-turn-discard-standoff.ts",
         "src/states/vendetta-discard-card.ts",
         "src/states/player-turn.ts",
         "src/states/player-turn-discard.ts",

@@ -32,6 +32,10 @@
 
 .c-card-selected {
    box-shadow: inset 0 0 3px 5px #00ffff;
+
+   .card-sides .card-side {
+      box-shadow: inset 0 0 3px 5px #00ffff;
+   }
 }
 
 @keyframes pulseSelectable {
@@ -50,6 +54,7 @@
          z-index: 10;
       }
    }
+
    &[data-count="10"],
    &[data-count="11"] {
       --card-overlap: 40px !important;

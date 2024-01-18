@@ -219,13 +219,23 @@ $scoringStates = [
         "type" => "game",
         "action" => "stFinalScoring",
         "transitions" => [
-            "" => ST_BGA_GAME_END,
+            "end" => ST_BGA_GAME_END,
+            "debug" => ST_END_GAME_DEBUG,
         ],
     ],
 ];
 
 $machinestates = $basicGameStates + $gameEngineState + $vendettaStates + $standoffStates + $scoringStates + [
     
-
+    ST_END_GAME_DEBUG => [
+        "name" => "endGameDebug",
+        "description" => clienttranslate('End Game'),
+        "descriptionmyturn" => clienttranslate('End Game'),
+        "type" => "activeplayer",
+        "possibleactions" => [],
+        "transitions" => [
+            '' => ST_BGA_GAME_END,
+        ],
+    ],
     
 ];

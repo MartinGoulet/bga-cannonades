@@ -35,8 +35,12 @@ class NotificationManager {
       this.game.tableCenter.discard.addCards(cards);
    }
 
-   private async notif_onDrawCards({ cards, player_id }: DrawCardsArgs) {
-      await this.game.getPlayerTable(player_id).hand.addCards(cards, { fromStock: this.game.tableCenter.deck });
+   private async notif_onDrawCards({ cards, player_id, discard }: DrawCardsArgs) {
+      if(discard) {
+         await this.game.getPlayerTable(player_id).hand.addCards(cards, { fromStock: this.game.tableCenter.discard });
+      } else {
+         await this.game.getPlayerTable(player_id).hand.addCards(cards, { fromStock: this.game.tableCenter.deck });
+      }
    }
 
    private notif_onPlayCard({ card, player_id }: PlayCardArgs) {
@@ -59,6 +63,7 @@ class NotificationManager {
    private setupNotifications(notifs: any) {
       notifs.forEach(([eventName, duration]) => {
          dojo.subscribe(eventName, this, (notifDetails: INotification<any>) => {
+            console.log(`notif_${eventName}`, notifDetails.args);
             const promise = this[`notif_${eventName}`](notifDetails.args);
             // tell the UI notification ends, if the function returned a promise
             promise?.then(() => this.game.notifqueue.onSynchronousNotificationEnd());
@@ -86,6 +91,7 @@ interface DiscardHandArgs {
 interface DrawCardsArgs {
    player_id: number;
    cards: CannonadesCard[];
+   discard: boolean;
 }
 
 interface PlayCardArgs {

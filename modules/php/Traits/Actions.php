@@ -28,6 +28,10 @@ trait Actions {
     }
 
     function discardCard(int $card_id) {
+        if (Globals::getPlayerStandoff() !== 0) {
+            throw new BgaUserException("You cannot use this action during standoff");
+        }
+
         $player_id = intval(Game::get()->getActivePlayerId());
 
         $card = Card::get($card_id);
@@ -167,7 +171,7 @@ trait Actions {
     function standoff(int $card_id) {
         $player_id = Game::get()->getCurrentPlayerId();
         $card = Card::addCardToHand($card_id, $player_id);
-        Notifications::onDrawCards($player_id, [$card]);
+        Notifications::onDrawCards($player_id, [$card], true);
 
         $next_state = Globals::getActionsRemaining() == 0 ? "next" : "current";
         Game::get()->gamestate->nextState($next_state);

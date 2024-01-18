@@ -54,12 +54,13 @@ class Notifications extends \APP_DbObject {
         ]);
     }
 
-    public static function onDrawCards(int $player_id, array $cards) {
+    public static function onDrawCards(int $player_id, array $cards, bool $discard = false) {
         $args = [
             'player_id' => $player_id,
             'player_name' => self::getPlayerName($player_id),
             'nbr_cards' => count($cards),
-            'cards' => $cards,
+            'cards' => array_values($cards),
+            'discard' => $discard,
         ];
         $message = clienttranslate('${player_name} draws ${nbr_cards}');
         self::notify($player_id, 'onDrawCards', $message, $args);

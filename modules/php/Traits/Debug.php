@@ -13,4 +13,8 @@ trait Debug {
     static function discardDeck() {
         Game::get()->deck->moveAllCardsInLocation('deck', 'discard');
     }
+
+    static function discardTopCard($nbr) {
+        $cards = Game::get()->deck->pickCardsForLocation($nbr, 'deck', 'discard');
+    }
 }

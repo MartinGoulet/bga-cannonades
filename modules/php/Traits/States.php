@@ -53,14 +53,14 @@ trait States {
     }
 
     function stPlayerNextAction() {
+        $count_actions = Globals::getActionsRemaining();
 
-        if (globals::isLastTurn()) {
+        if (globals::isLastTurn() && $count_actions <= 1) {
             Game::get()->gamestate->nextState('end');
             return;
         }
 
         $player_id = intval(Game::get()->getActivePlayerId());
-        $count_actions = Globals::getActionsRemaining();
         $count_vendetta = count(Globals::getVendetta());
 
         if (Card::countShipOnBoard($player_id) == 0 && $count_actions <= 1) {
@@ -154,7 +154,8 @@ trait States {
                 Notifications::updateScore($player_id, count($ships));
             }
         }
-        Game::get()->gamestate->nextState();
+        $next_state = $this->getBgaEnvironment() == 'studio' ? 'debug' : 'end';
+        Game::get()->gamestate->nextState($next_state);
     }
 
     private function countIcons(array $ships) {

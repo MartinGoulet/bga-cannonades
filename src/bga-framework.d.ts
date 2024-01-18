@@ -194,7 +194,7 @@ declare namespace ebg {
              * helpString and actionString : Usually, _() must be used for the text to be marked for translation.
              */
             addTooltipToClass: (cssClass, helpString: string, actionString: string, delay?: number) => void;
-            addActionButton: (id: string, label: string, method: string | Function, destination?: string, blinking?: boolean, color?: BgaButtonColor) => void;
+            addActionButton: (id: string, label: string, method: string | Function, destination?: string | Element, blinking?: boolean, color?: BgaButtonColor) => void;
             connect: (element: HTMLElement, event: string, handler: string | Function) => any;
 
             connectClass: (cssClassName: string, event: string, handle: string | Function) => void;

@@ -1420,14 +1420,21 @@ var NotificationManager = (function () {
         this.game.tableCenter.discard.addCards(cards);
     };
     NotificationManager.prototype.notif_onDrawCards = function (_a) {
-        var cards = _a.cards, player_id = _a.player_id;
+        var cards = _a.cards, player_id = _a.player_id, discard = _a.discard;
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4, this.game.getPlayerTable(player_id).hand.addCards(cards, { fromStock: this.game.tableCenter.deck })];
+                    case 0:
+                        if (!discard) return [3, 2];
+                        return [4, this.game.getPlayerTable(player_id).hand.addCards(cards, { fromStock: this.game.tableCenter.discard })];
                     case 1:
                         _b.sent();
-                        return [2];
+                        return [3, 4];
+                    case 2: return [4, this.game.getPlayerTable(player_id).hand.addCards(cards, { fromStock: this.game.tableCenter.deck })];
+                    case 3:
+                        _b.sent();
+                        _b.label = 4;
+                    case 4: return [2];
                 }
             });
         });
@@ -1453,6 +1460,7 @@ var NotificationManager = (function () {
         notifs.forEach(function (_a) {
             var eventName = _a[0], duration = _a[1];
             dojo.subscribe(eventName, _this, function (notifDetails) {
+                console.log("notif_".concat(eventName), notifDetails.args);
                 var promise = _this["notif_".concat(eventName)](notifDetails.args);
                 promise === null || promise === void 0 ? void 0 : promise.then(function () { return _this.game.notifqueue.onSynchronousNotificationEnd(); });
             });
@@ -1555,10 +1563,10 @@ var StateManager = (function () {
     StateManager.prototype.onLeavingState = function (stateName) {
         console.log("Leaving state: ".concat(stateName));
         if (this.states[stateName] !== undefined) {
-            document.getElementById('customActions').innerHTML = '';
+            document.getElementById("customActions").innerHTML = "";
             this.states[stateName].onLeavingState();
         }
-        document.querySelectorAll('.c-card-selected').forEach(function (div) { return div.classList.remove('c-card-selected'); });
+        document.querySelectorAll(".c-card-selected").forEach(function (div) { return div.classList.remove("c-card-selected"); });
     };
     StateManager.prototype.onUpdateActionButtons = function (stateName, args) {
         console.log("Update action buttons: ".concat(stateName));
@@ -1607,13 +1615,14 @@ var PlayerTurnState = (function () {
         this.game = game;
     }
     PlayerTurnState.prototype.onEnteringState = function (_a) {
-        var can_add_ship = _a.can_add_ship, can_shoot_cannonades = _a.can_shoot_cannonades;
+        var can_add_ship = _a.can_add_ship, can_shoot_cannonades = _a.can_shoot_cannonades, standoff = _a.standoff;
         if (!this.game.isCurrentPlayerActive())
             return;
         this.can_add_ship = can_add_ship;
         this.can_shoot_cannonades = can_shoot_cannonades;
+        this.standoff = standoff;
         this.setupBoard();
-        this.setupHand(can_shoot_cannonades);
+        this.setupHand();
         this.checkButtons();
     };
     PlayerTurnState.prototype.onLeavingState = function () {
@@ -1666,7 +1675,7 @@ var PlayerTurnState = (function () {
     };
     PlayerTurnState.prototype.addButtonDiscard = function (_a) {
         var _this = this;
-        var can_shoot_cannonades = _a.can_shoot_cannonades, actions_remaining = _a.actions_remaining;
+        var can_shoot_cannonades = _a.can_shoot_cannonades, actions_remaining = _a.actions_remaining, standoff = _a.standoff;
         var handleDiscardVerification = function () {
             var willLoseGame = !can_shoot_cannonades &&
                 actions_remaining == 1 &&
@@ -1686,7 +1695,9 @@ var PlayerTurnState = (function () {
                 return;
             _this.game.takeAction("discardCard", { card_id: selection[0].id });
         };
-        this.game.addPrimaryActionButton("btn_draw", _("Discard a card to draw"), handleDiscardVerification);
+        if (!standoff) {
+            this.game.addPrimaryActionButton("btn_draw", _("Discard a card to draw"), handleDiscardVerification);
+        }
     };
     PlayerTurnState.prototype.addButtonPass = function (_a) {
         var _this = this;
@@ -1756,7 +1767,7 @@ var PlayerTurnState = (function () {
         var canShoot = this.can_shoot_cannonades && cardHand && this.game.cardManager.isCannonade(cardHand);
         this.game.toggleButton("btn_add", canAdd);
         this.game.toggleButton("btn_shoot", canShoot);
-        this.game.toggleButton("btn_draw", cardHand !== undefined);
+        this.game.toggleButton("btn_draw", cardHand !== undefined && !this.standoff);
         this.game.toggleButton("btn_board", cardBoard !== undefined);
     };
     return PlayerTurnState;
@@ -1998,6 +2009,7 @@ var Cannonades = (function () {
         this.tableCenter = new TableCenter(this);
         this.createPlayerTables(gamedatas);
         this.setupNotifications();
+        this.addReloadButton();
         if (gamedatas.is_standoff) {
             this.displayStandoff();
         }
@@ -2013,6 +2025,12 @@ var Cannonades = (function () {
     };
     Cannonades.prototype.setupNotifications = function () {
         this.notifManager.setup();
+    };
+    Cannonades.prototype.addReloadButton = function () {
+        var parent = document.querySelector('.debug_section');
+        if (parent) {
+            this.addActionButton('reload_css', _('Reload CSS'), function () { return reloadCss(); }, parent, null, 'gray');
+        }
     };
     Cannonades.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
@@ -2110,6 +2128,21 @@ var Cannonades = (function () {
     };
     return Cannonades;
 }());
+function reloadCss() {
+    var links = document.getElementsByTagName('link');
+    for (var cl in links) {
+        var link = links[cl];
+        if (link.rel === 'stylesheet' && link.href.includes('99999')) {
+            var index = link.href.indexOf('?timestamp=');
+            var href = link.href;
+            if (index >= 0) {
+                href = href.substring(0, index);
+            }
+            link.href = href + '?timestamp=' + Date.now();
+            console.log('reloading ' + link.href);
+        }
+    }
+}
 define([
     "dojo",
     "dojo/_base/declare",

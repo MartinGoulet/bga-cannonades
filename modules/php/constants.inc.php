@@ -15,6 +15,7 @@ const GAME_OPTION_VARIANT_FIX_5_CARDS = 2;
  */
 const ST_BGA_GAME_SETUP = 1;
 const ST_BGA_GAME_END = 99;
+const ST_END_GAME_DEBUG = 199;
 
 const ST_TURN_DRAW = 10;
 

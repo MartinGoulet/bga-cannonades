@@ -1,16 +1,18 @@
 class PlayerTurnState implements StateHandler {
    private can_add_ship: boolean;
    private can_shoot_cannonades: boolean;
+   private standoff: boolean;
 
    constructor(private game: Cannonades) {}
 
-   onEnteringState({ can_add_ship, can_shoot_cannonades }: PlayerTurnArgs): void {
+   onEnteringState({ can_add_ship, can_shoot_cannonades, standoff }: PlayerTurnArgs): void {
       if (!this.game.isCurrentPlayerActive()) return;
       this.can_add_ship = can_add_ship;
       this.can_shoot_cannonades = can_shoot_cannonades;
+      this.standoff = standoff;
 
       this.setupBoard();
-      this.setupHand(can_shoot_cannonades);
+      this.setupHand();
       this.checkButtons();
    }
 
@@ -67,7 +69,7 @@ class PlayerTurnState implements StateHandler {
       }
    }
 
-   private addButtonDiscard({ can_shoot_cannonades, actions_remaining }: PlayerTurnArgs) {
+   private addButtonDiscard({ can_shoot_cannonades, actions_remaining, standoff }: PlayerTurnArgs) {
       const handleDiscardVerification = () => {
          const willLoseGame =
             !can_shoot_cannonades &&
@@ -86,12 +88,13 @@ class PlayerTurnState implements StateHandler {
          if (selection.length !== 1) return;
          this.game.takeAction("discardCard", { card_id: selection[0].id });
       };
-
-      this.game.addPrimaryActionButton("btn_draw", _("Discard a card to draw"), handleDiscardVerification);
+      if (!standoff) {
+         this.game.addPrimaryActionButton("btn_draw", _("Discard a card to draw"), handleDiscardVerification);
+      }
    }
 
    private addButtonPass({ can_shoot_cannonades }: PlayerTurnArgs) {
-      const {board} = this.game.getCurrentPlayerTable();
+      const { board } = this.game.getCurrentPlayerTable();
 
       const handlePass = () => {
          if (!can_shoot_cannonades && board.getCards().length == 0) {
@@ -163,7 +166,7 @@ class PlayerTurnState implements StateHandler {
 
       this.game.toggleButton("btn_add", canAdd);
       this.game.toggleButton("btn_shoot", canShoot);
-      this.game.toggleButton("btn_draw", cardHand !== undefined);
+      this.game.toggleButton("btn_draw", cardHand !== undefined && !this.standoff);
       this.game.toggleButton("btn_board", cardBoard !== undefined);
    }
 }
@@ -172,4 +175,5 @@ interface PlayerTurnArgs {
    can_add_ship: boolean;
    can_shoot_cannonades: boolean;
    actions_remaining: number;
+   standoff: boolean;
 }

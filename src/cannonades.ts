@@ -19,6 +19,7 @@ class Cannonades implements ebg.core.gamegui {
       this.tableCenter = new TableCenter(this);
       this.createPlayerTables(gamedatas);
       this.setupNotifications();
+      this.addReloadButton();
 
       if (gamedatas.is_standoff) {
          this.displayStandoff();
@@ -35,6 +36,14 @@ class Cannonades implements ebg.core.gamegui {
    }
    public setupNotifications() {
       this.notifManager.setup();
+   }
+
+   private addReloadButton() {
+      // add reload Css debug button
+      const parent = document.querySelector('.debug_section');
+      if (parent) {
+         this.addActionButton('reload_css', _('Reload CSS'), () => reloadCss(), parent, null, 'gray');
+      }
    }
 
    private createPlayerTables(gamedatas: CannonadesGamedatas) {
@@ -147,5 +156,24 @@ class Cannonades implements ebg.core.gamegui {
       }
 
       return this.inherited(arguments);
+   }
+}
+
+// this goes outside dojo class - before or after
+function reloadCss() {
+   const links = document.getElementsByTagName('link');
+   for (var cl in links) {
+      var link = links[cl];
+      if (link.rel === 'stylesheet' && link.href.includes('99999')) {
+         var index = link.href.indexOf('?timestamp=');
+         var href = link.href;
+         if (index >= 0) {
+            href = href.substring(0, index);
+         }
+
+         link.href = href + '?timestamp=' + Date.now();
+
+         console.log('reloading ' + link.href);
+      }
    }
 }
