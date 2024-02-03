@@ -144,8 +144,20 @@ trait States {
 
                 $ships = array_values(Card::getBoard($player_id));
 
+                $grims = array_sum(array_map(function ($ship) {
+                    $ship_type = Game::get()->ship_types[$ship['type_arg']];
+                    return $ship_type['captain'];
+                }, $ships));
+
+                $grims = $grims > 1 ? 1 : 0;
+
+                $colors = count(array_unique(array_map(function ($ship) {
+                    $ship_type = Game::get()->ship_types[$ship['type_arg']];
+                    return $ship_type['color'];
+                }, $ships)));
+
                 $score_aux =
-                    1000 * count($ships) +
+                    1000 * ($grims + $colors) +
                     100 *  $this->maxSails($ships) +
                     10 * Card::countCardInHand($player_id) +
                     1 * ($player_id == Globals::getPlayerStandoff() ? 1 : 0);

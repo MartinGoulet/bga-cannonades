@@ -48,9 +48,9 @@ class Cannonades implements ebg.core.gamegui {
 
    private createPlayerTables(gamedatas: CannonadesGamedatas) {
       this.playersTables = [];
-      gamedatas.playerorder.forEach((player_id) => {
+      gamedatas.players_order.forEach((player_id, index) => {
          const player = gamedatas.players[Number(player_id)];
-         const table = new PlayerTable(this, player);
+         const table = new PlayerTable(this, player, index === 0);
          this.playersTables.push(table);
          if (player.eliminated) {
             setTimeout(() => this.eliminatePlayer(Number(player_id)), 200);

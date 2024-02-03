@@ -4,7 +4,7 @@ class PlayerTable {
    public board: LineStock<CannonadesCard>;
    public hand: HandStock<CannonadesCard>;
 
-   constructor(public game: Cannonades, player: CannonadesPlayerData) {
+   constructor(public game: Cannonades, player: CannonadesPlayerData, isFirstTable: boolean) {
       this.player_id = Number(player.id);
 
       const html = `
@@ -14,7 +14,7 @@ class PlayerTable {
             <div id="player-table-${player.id}-hand"></div>
         </div>`;
 
-      const pos = this.player_id === game.getPlayerId() ? "afterbegin" : "beforeend";
+      const pos = isFirstTable ? "afterbegin" : "beforeend";
       document.getElementById("tables").insertAdjacentHTML(pos, html);
 
       this.setupBoard(game);

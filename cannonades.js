@@ -1279,8 +1279,8 @@ var CannonadesCardManager = (function (_super) {
                 div.dataset.img = "0";
             },
             isCardVisible: function (card) { return "type_arg" in card; },
-            cardWidth: 100,
-            cardHeight: 140,
+            cardWidth: 100 * 1.3,
+            cardHeight: 137 * 1.3,
         }) || this;
         _this.game = game;
         return _this;
@@ -1470,11 +1470,11 @@ var NotificationManager = (function () {
     return NotificationManager;
 }());
 var PlayerTable = (function () {
-    function PlayerTable(game, player) {
+    function PlayerTable(game, player, isFirstTable) {
         this.game = game;
         this.player_id = Number(player.id);
         var html = "\n        <div id=\"player-table-".concat(player.id, "\" class=\"player-table whiteblock\" style=\"--player-color: #").concat(player.color, "\">\n            <div class=\"c-title\">").concat(player.name, "</div>\n            <div id=\"player-table-").concat(player.id, "-board\"></div>\n            <div id=\"player-table-").concat(player.id, "-hand\"></div>\n        </div>");
-        var pos = this.player_id === game.getPlayerId() ? "afterbegin" : "beforeend";
+        var pos = isFirstTable ? "afterbegin" : "beforeend";
         document.getElementById("tables").insertAdjacentHTML(pos, html);
         this.setupBoard(game);
         this.setupHand(game);
@@ -2035,9 +2035,9 @@ var Cannonades = (function () {
     Cannonades.prototype.createPlayerTables = function (gamedatas) {
         var _this = this;
         this.playersTables = [];
-        gamedatas.playerorder.forEach(function (player_id) {
+        gamedatas.players_order.forEach(function (player_id, index) {
             var player = gamedatas.players[Number(player_id)];
-            var table = new PlayerTable(_this, player);
+            var table = new PlayerTable(_this, player, index === 0);
             _this.playersTables.push(table);
             if (player.eliminated) {
                 setTimeout(function () { return _this.eliminatePlayer(Number(player_id)); }, 200);

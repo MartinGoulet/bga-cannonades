@@ -5,8 +5,8 @@
     padding-top: 30px;
     width: 720px;
     gap: 30px;
-    --card-width: 100px;
-    --card-height: 137px;
+    --card-width: calc(100px * var(--card-ratio));
+    --card-height: calc(137px * var(--card-ratio)); 
 }
 
 #decks {

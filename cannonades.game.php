@@ -154,6 +154,7 @@ class cannonades extends Table {
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score FROM player ";
         $result['players'] = self::getCollectionFromDb($sql);
+        $result['players_order'] = array_keys($this->getPlayersInOrder());
 
         $result['ship_types'] = $this->ship_types;
         $result['cannonade_types'] = $this->cannonade_types;
@@ -197,7 +198,30 @@ class cannonades extends Table {
 
     //////////////////////////////////////////////////////////////////////////////
     //////////// Utility functions
-    ////////////    
+    ////////////  
+
+    public function getPlayersInOrder($player_id = null) {
+        $result = [];
+
+        $players = $this->loadPlayersBasicInfos();
+        $next_player = $this->getNextPlayerTable();
+        if ($player_id == null) {
+            $player_id = $this->getCurrentPlayerId();
+        }
+
+        // Check for spectator
+        if (!key_exists($player_id, $players)) {
+            $player_id = $next_player[0];
+        }
+
+        // Build array starting with current player
+        for ($i = 0; $i < count($players); $i++) {
+            $result[$player_id] = $players[$player_id];
+            $player_id = $next_player[$player_id];
+        }
+
+        return $result;
+    }  
 
     /*
         In this space, you can put any utility methods useful for your game logic

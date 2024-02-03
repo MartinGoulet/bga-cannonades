@@ -16,8 +16,8 @@ class CannonadesCardManager extends CardManager<CannonadesCard> {
             div.dataset.img = "0";
          },
          isCardVisible: (card: CannonadesCard) => "type_arg" in card,
-         cardWidth: 100,
-         cardHeight: 140,
+         cardWidth: 100 * 1.3,
+         cardHeight: 137 * 1.3,
       });
    }
    getImgPos(card: CannonadesCard) {

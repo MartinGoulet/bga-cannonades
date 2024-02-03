@@ -13,6 +13,7 @@ interface CannonadesGamedatas extends BgaGamedatas {
 
     players: Record<string, CannonadesPlayerData>;
     players_info: Record<number, CannonadesPlayerInfo>;
+    players_order: number[];
 
     deck_count: number;
     discard: CannonadesCard[];

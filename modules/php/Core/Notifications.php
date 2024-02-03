@@ -108,7 +108,7 @@ class Notifications extends \APP_DbObject {
     }
 
     static function startVendetta($player_id, $player_id2) {
-        $message = clienttranslate('${player_name} starts a vendetta agains\'t ${player_name2}');
+        $message = clienttranslate('${player_name} starts a vendetta against ${player_name2}');
         self::message($message, [
             'player_id' => $player_id,
             'player_name' => self::getPlayerName($player_id),

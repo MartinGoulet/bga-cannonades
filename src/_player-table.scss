@@ -1,6 +1,6 @@
 .player-table {
-   --card-width: 100px;
-   --card-height: 137px;
+   --card-width: calc(100px * var(--card-ratio));
+   --card-height: calc(137px * var(--card-ratio));
    width: 700px;
    min-height: 320px;
    border: 3px solid var(--player-color);
