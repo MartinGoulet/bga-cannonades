@@ -1701,13 +1701,17 @@ var PlayerTurnState = (function () {
     };
     PlayerTurnState.prototype.addButtonPass = function (_a) {
         var _this = this;
-        var can_shoot_cannonades = _a.can_shoot_cannonades;
+        var can_shoot_cannonades = _a.can_shoot_cannonades, nbr_cards_to_discard = _a.nbr_cards_to_discard;
         var board = this.game.getCurrentPlayerTable().board;
         var handlePass = function () {
             if (!can_shoot_cannonades && board.getCards().length == 0) {
                 _this.game.confirmationDialog(_("You will be eliminated if you don't add a ship on your board."), function () {
                     return _this.game.takeAction("pass");
                 });
+            }
+            else if (nbr_cards_to_discard) {
+                var message = _("You will have to discard ${nbr} cards from your hand.").replace("${nbr}", nbr_cards_to_discard.toString());
+                _this.game.confirmationDialog(message, function () { return _this.game.takeAction("pass"); });
             }
             else {
                 _this.game.takeAction("pass");

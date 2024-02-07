@@ -46,7 +46,7 @@ class Card {
 
     static function countCardInHand(int $player_id) {
         $deck = Game::get()->deck;
-        return $deck->countCardInLocation('hand', $player_id);
+        return intval($deck->countCardInLocation('hand', $player_id));
     }
 
     static function discard($card_id) {

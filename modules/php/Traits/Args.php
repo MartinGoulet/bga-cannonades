@@ -26,6 +26,7 @@ trait Args {
             'can_shoot_cannonades' => Game::get()->getStat(STAT_TURN_NUMBER, $player_id) > 1,
             'actions_remaining' => Globals::getActionsRemaining(),
             'standoff' => Globals::getPlayerStandoff() !== 0,
+            'nbr_cards_to_discard' => max(0, Card::countCardInHand($player_id) - Game::getMaxNumberOfCardInHand()),
         ];
     }
 
@@ -44,7 +45,7 @@ trait Args {
 
         $player_id = intval($vendetta['from_player_id']);
         $ships = array_values(Card::getBoard($player_id));
-        $ships = array_filter($ships, fn($card) => !array_key_exists('type_arg', $card));
+        $ships = array_filter($ships, fn ($card) => !array_key_exists('type_arg', $card));
         return [
             'player_id' => $player_id,
             'player_name' => Game::get()->getPlayerNameById($player_id),
