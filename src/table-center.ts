@@ -8,10 +8,13 @@ class TableCenter {
       this.setupDeck(game);
       this.setupDiscard(game);
       this.setupPlayedCard(game)
+      const divTable = document.getElementById("table");
+      divTable.dataset.nbrPlayers = this.game.gamedatas.players_order.length.toString();
    }
 
    public displayDiscard(visible: boolean) {
-      document.getElementById("table").dataset.display_discard = visible ? "true" : "false";
+      const divTable = document.getElementById("table");
+      divTable.dataset.display_discard = visible ? "true" : "false";
    }
 
    private setupDeck(game: Cannonades) {

@@ -132,7 +132,8 @@ $gameEngineState = [
         "type" => "game",
         "action" => "stPlayerNext",
         "transitions" => [
-            "" => ST_TURN_DRAW,
+            "end" => ST_FINAL_SCORING,
+            "draw" => ST_TURN_DRAW,
         ],
     ],
 ];
@@ -181,7 +182,8 @@ $vendettaStates = [
         "type" => "game",
         "action" => "stPreVendettaDiscardCard",
         "transitions" => [
-            '' => ST_VENDETTA_DISCARD_CARD,
+            'next' => ST_VENDETTA_NEXT,
+            'discard' => ST_VENDETTA_DISCARD_CARD,
         ],
     ],
 
@@ -232,7 +234,9 @@ $machinestates = $basicGameStates + $gameEngineState + $vendettaStates + $stando
         "description" => clienttranslate('End Game'),
         "descriptionmyturn" => clienttranslate('End Game'),
         "type" => "activeplayer",
-        "possibleactions" => [],
+        "possibleactions" => [
+            'endGame',
+        ],
         "transitions" => [
             '' => ST_BGA_GAME_END,
         ],

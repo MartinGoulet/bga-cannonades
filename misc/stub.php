@@ -27,6 +27,10 @@ class Table {
     //////////// Game
     ////////////
 
+    static function applyDbUpgradeToAllDB($sql) {
+        
+    }
+
     /**
      * Get custom module from Board Game Arena
      * @return Card Instance of the module asked

@@ -44,6 +44,7 @@
         "src/states/player-turn-standoff.ts",
         "src/states/vendetta.ts",
         "src/states/vendetta-flip.ts",
+        "src/states/end-game-debug.ts",
 
         "src/cannonades.d.ts",
         "src/cannonades.ts",

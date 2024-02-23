@@ -2,7 +2,6 @@
 
 namespace Cannonades\Traits;
 
-use BgaUserException;
 use Cannonades\Core\Card;
 use Cannonades\Core\Game;
 use Cannonades\Core\Globals;
@@ -43,6 +42,7 @@ trait States {
             }
             Game::get()->gamestate->nextState('next');
         } else {
+            Player::setPlayedStandoff($player_id);
             if ($player_id === Globals::getPlayerStandoff()) {
                 Globals::setLastTurn(true);
                 Game::get()->gamestate->nextState('next');
@@ -55,7 +55,7 @@ trait States {
     function stPlayerNextAction() {
         $count_actions = Globals::getActionsRemaining();
 
-        if (globals::isLastTurn() && $count_actions <= 1) {
+        if (Globals::isLastTurn() && $count_actions <= 1) {
             Game::get()->gamestate->nextState('end');
             return;
         }
@@ -95,7 +95,11 @@ trait States {
         while (Player::isEliminated($player_id)) {
             $player_id = Game::get()->activeNextPlayer();
         }
-        Game::get()->gamestate->nextState();
+        if(Player::hasPlayedStandoff(intval($player_id))) {
+            Game::get()->gamestate->nextState('end');
+        } else {
+            Game::get()->gamestate->nextState('draw');
+        }
     }
 
     function stVendettaSwitch() {
@@ -194,9 +198,17 @@ trait States {
         $vendetta = array_shift($vendettas);
         $player_id = intval($vendetta['from_player_id']);
 
-        Game::get()->gamestate->changeActivePlayer($player_id);
-        Game::get()->giveExtraTime($player_id);
+        $hand = Card::getHand($player_id, true);
+        if(count($hand) === 1) {
+            $card = array_shift($hand);
+            Card::discard($card['id']);
+            Notifications::discardCard($card);
+            $this->gamestate->nextState('next');
+        } else {
+            Game::get()->gamestate->changeActivePlayer($player_id);
+            Game::get()->giveExtraTime($player_id);
+            $this->gamestate->nextState('discard');
+        }
 
-        $this->gamestate->nextState();
     }
 }

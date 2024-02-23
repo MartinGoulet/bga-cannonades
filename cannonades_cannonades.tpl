@@ -1,6 +1,6 @@
 {OVERALL_GAME_HEADER}
 
-<div id="table" data-display_discard="false">
+<div id="table" data-display_discard="false" data-nbr-players="0">
     <div id="tables-and-center">
         <div id="tables">
             <div id="table-center">

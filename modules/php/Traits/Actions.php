@@ -57,6 +57,26 @@ trait Actions {
     }
 
     function shootCannonade(int $card_id, int $ship_id) {
+        $this->shootOrBoard($card_id, $ship_id);
+        Game::get()->gamestate->nextState('next');
+    }
+
+    function boardShip(int $card_id, int $ship_id) {
+        $ship = Card::get($card_id);
+        $target_ship = Card::get($ship_id);
+        $current_player_id = Game::get()->getCurrentPlayerId();
+        $player_id = intval($target_ship['location_arg']);
+        $ship_type = Game::get()->ship_types[$ship['type_arg']];
+
+        $this->shootOrBoard($card_id, $ship_id);
+
+        if ($ship_type['captain'] > 0 && !Player::isEliminated($player_id)) {
+            Globals::addVendetta($current_player_id, $player_id);
+        }
+        Game::get()->gamestate->nextState('next');
+    }
+
+    private function shootOrBoard(int $card_id, int $ship_id) {
         $ship = Card::get($ship_id);
         $cannonade = Card::get($card_id);
 
@@ -111,12 +131,6 @@ trait Actions {
             if ($is_ship_sunk)  Globals::addVendetta($player_id, $current_player_id);
             if (!$is_ship_revealed)  Globals::addVendetta($player_id, $current_player_id);
         }
-
-        Game::get()->gamestate->nextState('next');
-    }
-
-    function boardShip(int $card_id, int $ship_id) {
-        $this->shootCannonade($card_id, $ship_id);
     }
 
     function pass() {
@@ -181,6 +195,11 @@ trait Actions {
         $card = Card::get($card_id);
         Card::discard($card_id);
         Notifications::discardCard($card);
+        // Move to next state
+        $this->gamestate->nextState();
+    }
+
+    public function endGame() {
         // Move to next state
         $this->gamestate->nextState();
     }

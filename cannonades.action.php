@@ -137,6 +137,13 @@ class action_cannonades extends APP_GameAction {
     self::ajaxResponse();
   }
 
+  public function endGame() {
+    self::setAjaxMode();
+    $this->game->checkAction('endGame');
+    $this->game->endGame();
+    self::ajaxResponse();
+  }
+
   private function getArrayArgs(string $name) {
     $args = self::getArg($name, AT_numberlist, true);
 

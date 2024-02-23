@@ -152,7 +152,7 @@ class cannonades extends Table {
 
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
-        $sql = "SELECT player_id id, player_score score FROM player ";
+        $sql = "SELECT player_id id, player_score score, played_standoff FROM player";
         $result['players'] = self::getCollectionFromDb($sql);
         $result['players_order'] = array_keys($this->getPlayersInOrder());
 
@@ -370,29 +370,11 @@ class cannonades extends Table {
     */
 
     function upgradeTableDb($from_version) {
-        // $from_version is the current version of this game database, in numerical form.
-        // For example, if the game was running with a release of your game named "140430-1345",
-        // $from_version is equal to 1404301345
 
-        // Example:
-        //        if( $from_version <= 1404301345 )
-        //        {
-        //            // ! important ! Use DBPREFIX_<table_name> for all tables
-        //
-        //            $sql = "ALTER TABLE DBPREFIX_xxxxxxx ....";
-        //            self::applyDbUpgradeToAllDB( $sql );
-        //        }
-        //        if( $from_version <= 1405061421 )
-        //        {
-        //            // ! important ! Use DBPREFIX_<table_name> for all tables
-        //
-        //            $sql = "CREATE TABLE DBPREFIX_xxxxxxx ....";
-        //            self::applyDbUpgradeToAllDB( $sql );
-        //        }
-        //        // Please add your future database scheme changes here
-        //
-        //
-
+        if ($from_version <= 2402071446) {
+            $sql = "ALTER TABLE `DBPREFIX_player` ADD `played_standoff` tinyint UNSIGNED NOT NULL DEFAULT '0'";
+            self::applyDbUpgradeToAllDB($sql);
+        }
 
     }
 }

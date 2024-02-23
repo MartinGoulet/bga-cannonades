@@ -1473,7 +1473,7 @@ var PlayerTable = (function () {
     function PlayerTable(game, player, isFirstTable) {
         this.game = game;
         this.player_id = Number(player.id);
-        var html = "\n        <div id=\"player-table-".concat(player.id, "\" class=\"player-table whiteblock\" style=\"--player-color: #").concat(player.color, "\">\n            <div class=\"c-title\">").concat(player.name, "</div>\n            <div id=\"player-table-").concat(player.id, "-board\"></div>\n            <div id=\"player-table-").concat(player.id, "-hand\"></div>\n        </div>");
+        var html = "\n        <div id=\"player-table-".concat(player.id, "\" class=\"player-table whiteblock\" style=\"--player-color: #").concat(player.color, "\">\n            <div class=\"c-title\">").concat(player.name, "</div>\n            <div class=\"player-table-board-wrapper\">\n               <div id=\"player-table-").concat(player.id, "-board\"></div>\n               <div id=\"player-table-").concat(player.id, "-hand\"></div>\n            </div>\n        </div>");
         var pos = isFirstTable ? "afterbegin" : "beforeend";
         document.getElementById("tables").insertAdjacentHTML(pos, html);
         this.setupBoard(game);
@@ -1495,9 +1495,12 @@ var TableCenter = (function () {
         this.setupDeck(game);
         this.setupDiscard(game);
         this.setupPlayedCard(game);
+        var divTable = document.getElementById("table");
+        divTable.dataset.nbrPlayers = this.game.gamedatas.players_order.length.toString();
     }
     TableCenter.prototype.displayDiscard = function (visible) {
-        document.getElementById("table").dataset.display_discard = visible ? "true" : "false";
+        var divTable = document.getElementById("table");
+        divTable.dataset.display_discard = visible ? "true" : "false";
     };
     TableCenter.prototype.setupDeck = function (game) {
         this.deck = new Deck(game.cardManager, document.getElementById("deck"), {
@@ -1551,6 +1554,7 @@ var StateManager = (function () {
             vendetta: new VendettaState(game),
             vendettaFlip: new VendettaFlipState(game),
             vendedtaDiscardCard: new VendettaDiscardCardState(game),
+            endGameDebug: new EndGameDebugState(game),
         };
     }
     StateManager.prototype.onEnteringState = function (stateName, args) {
@@ -1998,6 +2002,22 @@ var VendettaFlipState = (function () {
         this.game.addActionButtonClientCancel();
     };
     return VendettaFlipState;
+}());
+var EndGameDebugState = (function () {
+    function EndGameDebugState(game) {
+        this.game = game;
+    }
+    EndGameDebugState.prototype.onEnteringState = function (args) {
+        if (!this.game.isCurrentPlayerActive())
+            return;
+    };
+    EndGameDebugState.prototype.onLeavingState = function () { };
+    EndGameDebugState.prototype.onUpdateActionButtons = function (args) {
+        var _this = this;
+        var handle = function () { return _this.game.takeAction("endGame"); };
+        this.game.addDangerActionButton("btn_end", "End game", handle);
+    };
+    return EndGameDebugState;
 }());
 var Cannonades = (function () {
     function Cannonades() {

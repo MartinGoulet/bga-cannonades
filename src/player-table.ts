@@ -10,8 +10,10 @@ class PlayerTable {
       const html = `
         <div id="player-table-${player.id}" class="player-table whiteblock" style="--player-color: #${player.color}">
             <div class="c-title">${player.name}</div>
-            <div id="player-table-${player.id}-board"></div>
-            <div id="player-table-${player.id}-hand"></div>
+            <div class="player-table-board-wrapper">
+               <div id="player-table-${player.id}-board"></div>
+               <div id="player-table-${player.id}-hand"></div>
+            </div>
         </div>`;
 
       const pos = isFirstTable ? "afterbegin" : "beforeend";

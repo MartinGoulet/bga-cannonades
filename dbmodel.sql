@@ -32,3 +32,6 @@ CREATE TABLE IF NOT EXISTS `global_variables` (
   `value` JSON,
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `player` ADD `played_standoff` INT UNSIGNED NOT NULL DEFAULT '0';
+

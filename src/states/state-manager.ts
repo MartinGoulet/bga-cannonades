@@ -12,6 +12,7 @@ class StateManager {
          vendetta: new VendettaState(game),
          vendettaFlip: new VendettaFlipState(game),
          vendedtaDiscardCard: new VendettaDiscardCardState(game),
+         endGameDebug: new EndGameDebugState(game),
       };
    }
 

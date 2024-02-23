@@ -477,7 +477,8 @@ body > .card {
   margin: 10px auto;
 }
 
-html, .mode_3d #game_play_area_background {
+html,
+.mode_3d #game_play_area_background {
   background: url("img/background.jpg");
   background-size: 100% auto;
   background-repeat: repeat;
@@ -487,12 +488,25 @@ html, .mode_3d #game_play_area_background {
   --card-ratio: 1.3;
 }
 
+@media (max-width: 2475px) {
+  #table[data-nbr-players="2"] #tables > :first-child {
+    order: 2;
+  }
+  #table[data-nbr-players="2"] #tables #table-center {
+    order: 1;
+  }
+  #table[data-nbr-players="2"] #tables > :last-child {
+    order: 0;
+  }
+  #table[data-nbr-players="2"] #tables > :last-child .player-table-board-wrapper {
+    transform: rotate(180deg);
+  }
+}
 #tables {
   display: flex;
   column-gap: 20px;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: flex-start;
 }
 
 .c-title {
