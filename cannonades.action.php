@@ -114,6 +114,13 @@ class action_cannonades extends APP_GameAction {
     self::ajaxResponse();
   }
 
+  public function vendettaPass() {
+    self::setAjaxMode();
+    $this->game->checkAction('vendettaPass');
+    $this->game->vendettaPass();
+    self::ajaxResponse();
+  }
+
   public function discard() {
     self::setAjaxMode();
     $card_ids = self::getArrayArgs("card_ids");

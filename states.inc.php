@@ -100,6 +100,7 @@ $gameEngineState = [
             "next" => ST_PLAYER_NEXT_ACTION,
             "standoff" => ST_PLAYER_STANDOFF,
         ],
+        "updateGameProgression" => true,
     ],
 
     ST_PLAYER_NEXT_ACTION => [
@@ -159,6 +160,7 @@ $vendettaStates = [
             "vendettaDrawCard",
             "vendettaDiscardCard",
             "vendettaFlipShip",
+            "vendettaPass",
         ],
         "transitions" => [
             "next" => ST_VENDETTA_NEXT,

@@ -63,7 +63,7 @@ class NotificationManager {
    private setupNotifications(notifs: any) {
       notifs.forEach(([eventName, duration]) => {
          dojo.subscribe(eventName, this, (notifDetails: INotification<any>) => {
-            console.log(`notif_${eventName}`, notifDetails.args);
+            // console.log(`notif_${eventName}`, notifDetails.args);
             const promise = this[`notif_${eventName}`](notifDetails.args);
             // tell the UI notification ends, if the function returned a promise
             promise?.then(() => this.game.notifqueue.onSynchronousNotificationEnd());

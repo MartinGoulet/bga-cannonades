@@ -3,16 +3,16 @@ class VendettaState implements StateHandler {
    onEnteringState(args: any): void {}
    onLeavingState(): void {}
    onUpdateActionButtons(args: VendettaArgs): void {
-      console.log(args);
       this.addButtonDraw(args);
       this.addButtonDiscard(args);
       this.addButtonFlip(args);
+      this.addButtonPass();
    }
 
    private addButtonDraw({ deck_count }: VendettaArgs) {
       const handleDraw = () => this.game.takeAction("vendettaDrawCard");
       this.game.addPrimaryActionButton("btn_draw", _("Draw a card"), handleDraw);
-      this.game.toggleButton('btn_draw', deck_count > 0);
+      this.game.toggleButton("btn_draw", deck_count > 0);
    }
 
    private addButtonDiscard({ player_name, player_hand_count }: VendettaArgs) {
@@ -48,6 +48,13 @@ class VendettaState implements StateHandler {
       );
 
       this.game.toggleButton("btn_flip", hidden_ships.length > 0);
+   }
+
+   private addButtonPass() {
+      const handlePass = () => {
+         this.game.takeAction("vendettaPass");
+      };
+      this.game.addDangerActionButton("btn_pass", _("Pass"), handlePass);
    }
 }
 

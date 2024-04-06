@@ -17,15 +17,15 @@ class StateManager {
    }
 
    onEnteringState(stateName: string, args: any): void {
-      console.log(`Entering state: ${stateName}`);
-      console.log(`|- args :`, args?.args);
+      // console.log(`Entering state: ${stateName}`);
+      // console.log(`|- args :`, args?.args);
       if (this.states[stateName] !== undefined) {
          this.states[stateName].onEnteringState(args.args);
       }
    }
 
    onLeavingState(stateName: string): void {
-      console.log(`Leaving state: ${stateName}`);
+      // console.log(`Leaving state: ${stateName}`);
       if (this.states[stateName] !== undefined) {
          document.getElementById("customActions").innerHTML = "";
          this.states[stateName].onLeavingState();
@@ -34,7 +34,7 @@ class StateManager {
    }
 
    onUpdateActionButtons(stateName: string, args: any): void {
-      console.log(`Update action buttons: ${stateName}`);
+      // console.log(`Update action buttons: ${stateName}`);
       if (this.states[stateName] !== undefined && this.game.isCurrentPlayerActive()) {
          this.states[stateName].onUpdateActionButtons(args);
       }

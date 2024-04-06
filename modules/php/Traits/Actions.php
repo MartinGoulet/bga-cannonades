@@ -139,6 +139,10 @@ trait Actions {
         Game::get()->gamestate->nextState('next');
     }
 
+    function vendettaPass() {
+        Game::get()->gamestate->nextState('next');
+    }
+
     function vendettaDrawCard() {
         $player_id = intval(Game::get()->getActivePlayerId());
         $cards = Card::draw($player_id, 1);

@@ -1460,7 +1460,6 @@ var NotificationManager = (function () {
         notifs.forEach(function (_a) {
             var eventName = _a[0], duration = _a[1];
             dojo.subscribe(eventName, _this, function (notifDetails) {
-                console.log("notif_".concat(eventName), notifDetails.args);
                 var promise = _this["notif_".concat(eventName)](notifDetails.args);
                 promise === null || promise === void 0 ? void 0 : promise.then(function () { return _this.game.notifqueue.onSynchronousNotificationEnd(); });
             });
@@ -1558,14 +1557,11 @@ var StateManager = (function () {
         };
     }
     StateManager.prototype.onEnteringState = function (stateName, args) {
-        console.log("Entering state: ".concat(stateName));
-        console.log("|- args :", args === null || args === void 0 ? void 0 : args.args);
         if (this.states[stateName] !== undefined) {
             this.states[stateName].onEnteringState(args.args);
         }
     };
     StateManager.prototype.onLeavingState = function (stateName) {
-        console.log("Leaving state: ".concat(stateName));
         if (this.states[stateName] !== undefined) {
             document.getElementById("customActions").innerHTML = "";
             this.states[stateName].onLeavingState();
@@ -1573,7 +1569,6 @@ var StateManager = (function () {
         document.querySelectorAll(".c-card-selected").forEach(function (div) { return div.classList.remove("c-card-selected"); });
     };
     StateManager.prototype.onUpdateActionButtons = function (stateName, args) {
-        console.log("Update action buttons: ".concat(stateName));
         if (this.states[stateName] !== undefined && this.game.isCurrentPlayerActive()) {
             this.states[stateName].onUpdateActionButtons(args);
         }
@@ -1926,17 +1921,17 @@ var VendettaState = (function () {
     VendettaState.prototype.onEnteringState = function (args) { };
     VendettaState.prototype.onLeavingState = function () { };
     VendettaState.prototype.onUpdateActionButtons = function (args) {
-        console.log(args);
         this.addButtonDraw(args);
         this.addButtonDiscard(args);
         this.addButtonFlip(args);
+        this.addButtonPass();
     };
     VendettaState.prototype.addButtonDraw = function (_a) {
         var _this = this;
         var deck_count = _a.deck_count;
         var handleDraw = function () { return _this.game.takeAction("vendettaDrawCard"); };
         this.game.addPrimaryActionButton("btn_draw", _("Draw a card"), handleDraw);
-        this.game.toggleButton('btn_draw', deck_count > 0);
+        this.game.toggleButton("btn_draw", deck_count > 0);
     };
     VendettaState.prototype.addButtonDiscard = function (_a) {
         var _this = this;
@@ -1964,6 +1959,13 @@ var VendettaState = (function () {
         };
         this.game.addPrimaryActionButton("btn_flip", _("${player_name} turn a ship face up").replace("${player_name}", player_name), handleFlip);
         this.game.toggleButton("btn_flip", hidden_ships.length > 0);
+    };
+    VendettaState.prototype.addButtonPass = function () {
+        var _this = this;
+        var handlePass = function () {
+            _this.game.takeAction("vendettaPass");
+        };
+        this.game.addDangerActionButton("btn_pass", _("Pass"), handlePass);
     };
     return VendettaState;
 }());
